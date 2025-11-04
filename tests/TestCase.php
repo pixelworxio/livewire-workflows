@@ -5,9 +5,9 @@ namespace Tests;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Pixelworxio\LivewireWorkflows\LivewireWorkflowsServiceProvider;
-use Livewire\LivewireServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -34,9 +34,9 @@ class TestCase extends Orchestra
 
         config()->set('database.default', 'testing');
         config()->set('database.connections.testing', [
-            'driver'   => 'sqlite',
+            'driver' => 'sqlite',
             'database' => ':memory:',
-            'prefix'   => '',
+            'prefix' => '',
         ]);
 
         config()->set('session.driver', 'array');

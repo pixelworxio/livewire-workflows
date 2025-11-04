@@ -209,6 +209,6 @@ class WorkflowEngine
         }
 
         // Fallback for tests or requests without sessions
-        return 'guest-' . md5($request->ip() . ($request->userAgent() ?? 'unknown'));
+        return 'guest-'.md5($request->ip().($request->userAgent() ?? 'unknown'));
     }
 }

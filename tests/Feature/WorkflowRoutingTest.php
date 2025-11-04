@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use Pixelworxio\LivewireWorkflows\Facades\Workflow;
 use Livewire\Livewire;
+use Pixelworxio\LivewireWorkflows\Facades\Workflow;
 
 beforeEach(function () {
     app(Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class)->clear();

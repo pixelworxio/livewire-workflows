@@ -1,24 +1,28 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "pixelworxio/livewire-workflows",
+    "description": "Pipeline-driven workflow router for Laravel Livewire with auto-registered routes and readable DSL",
     "keywords": [
-        ":vendor_name",
+        "Pixelworx",
         "laravel",
-        ":package_slug"
+        "livewire",
+        "livewire-workflows"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/pixelworxio/livewire-workflows",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Whoisthisstud",
+            "email": "44807533+whoisthisstud@users.noreply.github.com",
             "role": "Developer"
         }
     ],
     "require": {
         "php": "^8.4",
-        "spatie/laravel-package-tools": "^1.16",
-        "illuminate/contracts": "^11.0||^12.0"
+        "illuminate/contracts": "^11.0||^12.0",
+        "illuminate/pipeline": "^11.0|^12.0",
+        "illuminate/support": "^11.0|^12.0",
+        "livewire/livewire": "^3.0|^4.0",
+        "spatie/laravel-package-tools": "^1.16"
     },
     "require-dev": {
         "laravel/pint": "^1.14",
@@ -29,19 +33,19 @@
         "pestphp/pest-plugin-arch": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.0",
         "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "phpstan/phpstan-deprecation-rules": "^2.0",
-        "phpstan/phpstan-phpunit": "^2.0",
-        "spatie/laravel-ray": "^1.35"
+        "phpstan/phpstan-phpunit": "^2.0"
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src/",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories/"
+            "Pixelworx\\LivewireWorkflows\\": "src/",
+            "Pixelworx\\LivewireWorkflows\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests/",
+            "Pixelworx\\LivewireWorkflows\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -63,10 +67,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "Pixelworx\\LivewireWorkflows\\LivewireWorkflowsServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "LivewireWorkflows": "Pixelworx\\LivewireWorkflows\\Facades\\LivewireWorkflows"
             }
         }
     },

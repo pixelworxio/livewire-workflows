@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Pixelworx\LivewireWorkflows\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class LivewireWorkflowsCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'livewire-workflows';
 
     public $description = 'My command';
 

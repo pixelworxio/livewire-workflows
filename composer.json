@@ -1,12 +1,8 @@
 {
     "name": "pixelworxio/livewire-workflows",
     "description": "Pipeline-driven workflow router for Laravel Livewire with auto-registered routes and readable DSL",
-    "keywords": [
-        "Pixelworx",
-        "laravel",
-        "livewire",
-        "livewire-workflows"
-    ],
+    "keywords": ["laravel", "livewire", "workflow", "multistep", "forms"],
+    "type": "library",
     "homepage": "https://github.com/pixelworxio/livewire-workflows",
     "license": "MIT",
     "authors": [
@@ -39,30 +35,25 @@
     },
     "autoload": {
         "psr-4": {
-            "Pixelworx\\LivewireWorkflows\\": "src/",
-            "Pixelworx\\LivewireWorkflows\\Database\\Factories\\": "database/factories/"
-        }
+            "Pixelworx\\LivewireWorkflows\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
-            "Pixelworx\\LivewireWorkflows\\Tests\\": "tests/",
-            "Workbench\\App\\": "workbench/app/"
+            "Tests\\": "tests/"
         }
     },
-    "scripts": {
-        "post-autoload-dump": "@composer run prepare",
-        "prepare": "@php vendor/bin/testbench package:discover --ansi",
-        "analyse": "vendor/bin/phpstan analyse",
-        "test": "vendor/bin/pest",
-        "test-coverage": "vendor/bin/pest --coverage",
-        "format": "vendor/bin/pint"
-    },
     "config": {
-        "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "phpstan/extension-installer": true
         }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest"
     },
     "extra": {
         "laravel": {
@@ -70,7 +61,7 @@
                 "Pixelworx\\LivewireWorkflows\\LivewireWorkflowsServiceProvider"
             ],
             "aliases": {
-                "LivewireWorkflows": "Pixelworx\\LivewireWorkflows\\Facades\\LivewireWorkflows"
+                "Workflow": "Pixelworx\\LivewireWorkflows\\Facades\\Workflow"
             }
         }
     },

@@ -9,15 +9,16 @@ use Pixelworxio\LivewireWorkflows\Support\StepDefinition;
 class StepBuilder
 {
     protected ?string $component = null;
+
     protected ?string $guard = null;
+
     protected int $order = 0;
 
     public function __construct(
         protected string $key,
         protected string $flow,
         protected FlowBuilder $flowBuilder
-    ) {
-    }
+    ) {}
 
     public function goTo(string $component): static
     {
@@ -64,6 +65,6 @@ class StepBuilder
             return $this->flowBuilder->$method(...$arguments);
         }
 
-        throw new \BadMethodCallException("Method {$method} does not exist on " . static::class);
+        throw new \BadMethodCallException("Method {$method} does not exist on ".static::class);
     }
 }

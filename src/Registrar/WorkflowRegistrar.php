@@ -10,6 +10,7 @@ use Pixelworxio\LivewireWorkflows\Support\WorkflowDefinition;
 class WorkflowRegistrar
 {
     protected array $workflows = [];
+
     protected array $pendingBuilders = [];
 
     public function flow(string $name): FlowBuilder

@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 uses(TestCase::class)->in('Feature', 'Unit');
@@ -16,11 +15,11 @@ function createTestWorkflow(): void
         ->finishesAt('dashboard')
         ->historyMode('stack')
         ->step('step-one')
-            ->goTo(\Pixelworx\LivewireWorkflows\Tests\Support\TestStepOneComponent::class)
-            ->unlessPasses(\Pixelworx\LivewireWorkflows\Tests\Support\TestStepOneGuard::class)
-            ->order(10)
+        ->goTo(\Pixelworx\LivewireWorkflows\Tests\Support\TestStepOneComponent::class)
+        ->unlessPasses(\Pixelworx\LivewireWorkflows\Tests\Support\TestStepOneGuard::class)
+        ->order(10)
         ->step('step-two')
-            ->goTo(\Pixelworx\LivewireWorkflows\Tests\Support\TestStepTwoComponent::class)
-            ->unlessPasses(\Pixelworx\LivewireWorkflows\Tests\Support\TestStepTwoGuard::class)
-            ->order(20);
+        ->goTo(\Pixelworx\LivewireWorkflows\Tests\Support\TestStepTwoComponent::class)
+        ->unlessPasses(\Pixelworx\LivewireWorkflows\Tests\Support\TestStepTwoGuard::class)
+        ->order(20);
 }

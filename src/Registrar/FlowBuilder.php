@@ -10,18 +10,23 @@ use Pixelworxio\LivewireWorkflows\Support\WorkflowDefinition;
 class FlowBuilder
 {
     protected ?string $entryName = null;
+
     protected ?string $entryPath = null;
+
     protected ?string $finishRoute = null;
+
     protected string $historyMode = 'none';
+
     protected ?StepBuilder $currentStep = null;
+
     public array $steps = [];
+
     protected bool $isBuilt = false;
 
     public function __construct(
         protected string $flow,
         protected WorkflowRegistrar $registrar
-    ) {
-    }
+    ) {}
 
     public function entersAt(string $name, string $path): static
     {
@@ -111,7 +116,7 @@ class FlowBuilder
 
     public function __destruct()
     {
-        if (!$this->isBuilt && $this->finishRoute !== null) {
+        if (! $this->isBuilt && $this->finishRoute !== null) {
             try {
                 $this->build();
             } catch (\Throwable $e) {

@@ -29,8 +29,10 @@ class WorkflowEntryController extends Controller
      *
      * @param  string  $flow  The workflow identifier
      */
-    public function __invoke(Request $request, string $flow): RedirectResponse
+    public function __invoke(Request $request): RedirectResponse
     {
+        $flow = $request->route('flow');
+
         return $this->resolver->redirect($flow, $request);
     }
 }

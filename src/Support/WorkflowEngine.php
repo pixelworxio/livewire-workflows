@@ -194,13 +194,21 @@ class WorkflowEngine
 
     /**
      * Get the user key for state persistence.
+     *
+     * Returns the authenticated user ID, session ID, or a guest identifier.
      */
-    protected function getUserKey(Request $request): string|int|null
+    protected function getUserKey(Request $request): string|int
     {
         if ($request->user()) {
             return $request->user()->getAuthIdentifier();
         }
 
-        return $request->session()->getId();
+        // Check if session is available
+        if ($request->hasSession()) {
+            return $request->session()->getId();
+        }
+
+        // Fallback for tests or requests without sessions
+        return 'guest-' . md5($request->ip() . ($request->userAgent() ?? 'unknown'));
     }
 }

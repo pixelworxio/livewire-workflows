@@ -17,11 +17,11 @@ beforeEach(function () {
         ->entersAt(name: 'onboarding.start', path: '/onboarding')
         ->finishesAt('dashboard')
         ->step('step-one')
-        ->goTo(Tests\Support\TestStepOneComponent::class)
-        ->unlessPasses(Tests\Support\TestStepOneGuard::class)
-        ->order(10);
+            ->goTo(Tests\Support\TestStepOneComponent::class)
+            ->unlessPasses(Tests\Support\TestStepOneGuard::class)
+            ->order(10);
 
-    app(Pixelworxio\LivewireWorkflows\LivewireWorkflowsServiceProvider::class)->registerRoutes();
+    app(Pixelworxio\LivewireWorkflows\Support\RouteRegistrar::class)->register();
     Route::get('/dashboard', fn () => 'Dashboard')->name('dashboard');
 });
 

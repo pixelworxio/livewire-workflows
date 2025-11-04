@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace Pixelworxio\LivewireWorkflows;
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Pixelworxio\LivewireWorkflows\Commands\MakeWorkflowCommand;
 use Pixelworxio\LivewireWorkflows\Commands\MakeWorkflowStepCommand;
 use Pixelworxio\LivewireWorkflows\Commands\WorkflowsInstallCommand;
 use Pixelworxio\LivewireWorkflows\Commands\WorkflowsScanCommand;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
-use Pixelworxio\LivewireWorkflows\Http\Controllers\WorkflowEntryController;
 use Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar;
 use Pixelworxio\LivewireWorkflows\StateRepositories\EloquentWorkflowStateRepository;
 use Pixelworxio\LivewireWorkflows\StateRepositories\NullStateRepository;
 use Pixelworxio\LivewireWorkflows\StateRepositories\SessionWorkflowStateRepository;
+use Pixelworxio\LivewireWorkflows\Support\RouteRegistrar;
 use Pixelworxio\LivewireWorkflows\Support\WorkflowEngine;
 use Pixelworxio\LivewireWorkflows\Support\WorkflowResolver;
 
@@ -39,6 +38,12 @@ class LivewireWorkflowsServiceProvider extends ServiceProvider
             return new WorkflowResolver(
                 $app->make(WorkflowRegistrar::class),
                 $app->make(WorkflowEngine::class)
+            );
+        });
+
+        $this->app->singleton(RouteRegistrar::class, function ($app) {
+            return new RouteRegistrar(
+                $app->make(WorkflowRegistrar::class)
             );
         });
 
@@ -106,25 +111,6 @@ class LivewireWorkflowsServiceProvider extends ServiceProvider
 
     protected function registerRoutes(): void
     {
-        $registrar = $this->app->make(WorkflowRegistrar::class);
-        $middleware = config('livewire-workflows.middleware', ['web']);
-
-        foreach ($registrar->all() as $workflow) {
-            // Register entry route
-            Route::middleware($middleware)
-                ->get($workflow->entryPath, [WorkflowEntryController::class, '__invoke'])
-                ->defaults('flow', $workflow->flow)
-                ->name($workflow->entryRouteName);
-
-            // Register step routes
-            foreach ($workflow->steps as $step) {
-                $routeName = $workflow->getStepRouteName($step->key);
-                $routePath = $workflow->getStepPath($step->key);
-
-                Route::middleware($middleware)
-                    ->get($routePath, $step->component)
-                    ->name($routeName);
-            }
-        }
+        $this->app->make(RouteRegistrar::class)->register();
     }
 }

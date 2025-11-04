@@ -56,6 +56,8 @@ test('session repository stores metadata', function () {
 });
 
 test('eloquent repository persists current step', function () {
+    $this->loadWorkflowMigrations();
+
     $repo = app(EloquentWorkflowStateRepository::class);
 
     $repo->setCurrentStep('test-flow', 1, 'step-one');
@@ -70,6 +72,8 @@ test('eloquent repository persists current step', function () {
 });
 
 test('eloquent repository tracks history', function () {
+    $this->loadWorkflowMigrations();
+
     $repo = app(EloquentWorkflowStateRepository::class);
 
     $repo->pushHistory('test-flow', 1, 'step-one');
@@ -81,6 +85,8 @@ test('eloquent repository tracks history', function () {
 });
 
 test('eloquent repository clears state', function () {
+    $this->loadWorkflowMigrations();
+
     $repo = app(EloquentWorkflowStateRepository::class);
 
     $repo->setCurrentStep('test-flow', 1, 'step-one');

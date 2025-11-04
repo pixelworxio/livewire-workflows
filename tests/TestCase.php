@@ -3,8 +3,11 @@
 namespace Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Pixelworxio\LivewireWorkflows\LivewireWorkflowsServiceProvider;
+use Livewire\LivewireServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -20,18 +23,45 @@ class TestCase extends Orchestra
     protected function getPackageProviders($app): array
     {
         return [
+            LivewireServiceProvider::class,
             LivewireWorkflowsServiceProvider::class,
         ];
     }
 
     public function getEnvironmentSetUp($app): void
     {
-        config()->set('database.default', 'testing');
+        config()->set('app.key', 'base64:'.base64_encode(random_bytes(32)));
 
-        /*
-         foreach (\Illuminate\Support\Facades\File::allFiles(__DIR__ . '/../database/migrations') as $migration) {
-            (include $migration->getRealPath())->up();
-         }
-         */
+        config()->set('database.default', 'testing');
+        config()->set('database.connections.testing', [
+            'driver'   => 'sqlite',
+            'database' => ':memory:',
+            'prefix'   => '',
+        ]);
+
+        config()->set('session.driver', 'array');
+
+        config()->set('livewire-workflows.repository', 'session');
+        config()->set('livewire-workflows.middleware', ['web']);
+
+        config()->set('view.paths', [
+            __DIR__.'/views',
+            resource_path('views'),
+        ]);
+    }
+
+    protected function loadWorkflowMigrations(): void
+    {
+        Schema::create('workflow_states', function (Blueprint $table) {
+            $table->id();
+            $table->string('workflow_name')->index();
+            $table->string('user_key')->index();
+            $table->string('current_step')->nullable();
+            $table->json('history')->nullable();
+            $table->json('metadata')->nullable();
+            $table->timestamps();
+
+            $table->unique(['workflow_name', 'user_key']);
+        });
     }
 }

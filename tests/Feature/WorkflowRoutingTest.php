@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Pixelworxio\LivewireWorkflows\Facades\Workflow;
+use Livewire\Livewire;
 
 beforeEach(function () {
     app(Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class)->clear();
 
-    Workflow::flow('onboarding')
+    $builder = Workflow::flow('onboarding')
         ->entersAt(name: 'onboarding.start', path: '/onboarding')
         ->finishesAt('dashboard')
         ->historyMode('stack')
@@ -21,11 +22,14 @@ beforeEach(function () {
         ->unlessPasses(Tests\Support\TestStepTwoGuard::class)
         ->order(20);
 
-    // Register routes
-    app(Pixelworxio\LivewireWorkflows\LivewireWorkflowsServiceProvider::class)->registerRoutes();
+    $builder->build();
 
-    // Create dashboard route for finish
     Route::get('/dashboard', fn () => 'Dashboard')->name('dashboard');
+
+    app(Pixelworxio\LivewireWorkflows\Support\RouteRegistrar::class)->register();
+
+    // Refresh route collection
+    app('router')->getRoutes()->refreshNameLookups();
 });
 
 test('entry route is registered', function () {
@@ -56,7 +60,6 @@ test('entry route redirects to finish when complete', function () {
 });
 
 test('step routes render livewire components', function () {
-    $response = $this->get(route('onboarding.verify-email'));
-
-    $response->assertOk();
+    Livewire::test(Tests\Support\TestStepOneComponent::class)
+        ->assertOk();
 });

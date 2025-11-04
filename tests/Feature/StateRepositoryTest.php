@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use Pixelworxio\LivewireWorkflows\StateRepositories\EloquentWorkflowStateRepository;
 use Pixelworxio\LivewireWorkflows\StateRepositories\NullStateRepository;
 use Pixelworxio\LivewireWorkflows\StateRepositories\SessionWorkflowStateRepository;
 
 test('null repository returns empty values', function () {
-    $repo = new NullStateRepository();
+    $repo = new NullStateRepository;
 
     expect($repo->getCurrentStep('test-flow', 'user-1'))->toBeNull()
         ->and($repo->getHistory('test-flow', 'user-1'))->toBe([])

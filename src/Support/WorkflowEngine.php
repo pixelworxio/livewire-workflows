@@ -22,14 +22,11 @@ class WorkflowEngine
     public function __construct(
         protected WorkflowStateRepository $stateRepository,
         protected Pipeline $pipeline,
-    ) {
-    }
+    ) {}
 
     /**
      * Determine the next step for the user in the workflow.
      *
-     * @param WorkflowDefinition $workflow
-     * @param Request $request
      * @return string|null Step key or null if workflow is complete
      */
     public function nextStep(WorkflowDefinition $workflow, Request $request): ?string
@@ -37,18 +34,18 @@ class WorkflowEngine
         $orderedSteps = $workflow->getOrderedSteps();
 
         foreach ($orderedSteps as $step) {
-            if (!$step->hasGuard()) {
+            if (! $step->hasGuard()) {
                 continue;
             }
 
             $guard = app($step->guardClass);
 
-            if (!$guard instanceof GuardContract) {
+            if (! $guard instanceof GuardContract) {
                 continue;
             }
 
             // If guard fails (returns false), this is the next unmet step
-            if (!$guard->passes($request)) {
+            if (! $guard->passes($request)) {
                 return $step->key;
             }
         }
@@ -59,11 +56,6 @@ class WorkflowEngine
 
     /**
      * Get the previous step key based on current step.
-     *
-     * @param WorkflowDefinition $workflow
-     * @param string $currentKey
-     * @param Request $request
-     * @return string|null
      */
     public function previousStep(WorkflowDefinition $workflow, string $currentKey, Request $request): ?string
     {
@@ -74,12 +66,12 @@ class WorkflowEngine
             $history = $this->stateRepository->getHistory($workflow->flow, $userKey);
 
             // Remove current step from history if it's the last item
-            if (!empty($history) && end($history) === $currentKey) {
+            if (! empty($history) && end($history) === $currentKey) {
                 array_pop($history);
             }
 
             // Get the previous step from history
-            if (!empty($history)) {
+            if (! empty($history)) {
                 return end($history);
             }
         }
@@ -92,11 +84,6 @@ class WorkflowEngine
 
     /**
      * Advance the workflow to a specific step.
-     *
-     * @param WorkflowDefinition $workflow
-     * @param string $toKey
-     * @param Request $request
-     * @return void
      */
     public function advanceTo(WorkflowDefinition $workflow, string $toKey, Request $request): void
     {
@@ -137,10 +124,6 @@ class WorkflowEngine
 
     /**
      * Mark a workflow as completed.
-     *
-     * @param WorkflowDefinition $workflow
-     * @param Request $request
-     * @return void
      */
     public function complete(WorkflowDefinition $workflow, Request $request): void
     {
@@ -155,10 +138,6 @@ class WorkflowEngine
 
     /**
      * Get progress information for a workflow.
-     *
-     * @param WorkflowDefinition $workflow
-     * @param Request $request
-     * @return array
      */
     public function progress(WorkflowDefinition $workflow, Request $request): array
     {
@@ -169,14 +148,15 @@ class WorkflowEngine
         $nextStepKey = null;
 
         foreach ($orderedSteps as $step) {
-            if (!$step->hasGuard()) {
+            if (! $step->hasGuard()) {
                 $completedSteps++;
+
                 continue;
             }
 
             $guard = app($step->guardClass);
 
-            if (!$guard instanceof GuardContract) {
+            if (! $guard instanceof GuardContract) {
                 continue;
             }
 
@@ -206,9 +186,6 @@ class WorkflowEngine
 
     /**
      * Get the user key for state persistence.
-     *
-     * @param Request $request
-     * @return string|int|null
      */
     protected function getUserKey(Request $request): string|int|null
     {

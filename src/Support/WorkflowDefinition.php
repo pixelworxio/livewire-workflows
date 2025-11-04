@@ -18,12 +18,12 @@ use Pixelworxio\LivewireWorkflows\Exceptions\InvalidWorkflowConfigurationExcepti
 class WorkflowDefinition
 {
     /**
-     * @param string $flow The workflow name/identifier
-     * @param string $entryRouteName The route name for workflow entry
-     * @param string $entryPath The base path for the workflow
-     * @param string $finishRoute The route name to redirect on completion
-     * @param string $historyMode History tracking mode: 'none' or 'stack'
-     * @param array<string, StepDefinition> $steps Associative array of step definitions keyed by step key
+     * @param  string  $flow  The workflow name/identifier
+     * @param  string  $entryRouteName  The route name for workflow entry
+     * @param  string  $entryPath  The base path for the workflow
+     * @param  string  $finishRoute  The route name to redirect on completion
+     * @param  string  $historyMode  History tracking mode: 'none' or 'stack'
+     * @param  array<string, StepDefinition>  $steps  Associative array of step definitions keyed by step key
      */
     public function __construct(
         public readonly string $flow,
@@ -39,8 +39,7 @@ class WorkflowDefinition
     /**
      * Get a step by its key.
      *
-     * @param string $key The step key
-     * @return StepDefinition|null
+     * @param  string  $key  The step key
      */
     public function getStep(string $key): ?StepDefinition
     {
@@ -64,8 +63,7 @@ class WorkflowDefinition
     /**
      * Get the previous step relative to a given step key.
      *
-     * @param string $currentKey The current step key
-     * @return StepDefinition|null
+     * @param  string  $currentKey  The current step key
      */
     public function getPreviousStep(string $currentKey): ?StepDefinition
     {
@@ -89,7 +87,7 @@ class WorkflowDefinition
     /**
      * Get the route name for a step.
      *
-     * @param string $stepKey The step key
+     * @param  string  $stepKey  The step key
      * @return string Route name in format: {flow}.{stepKey}
      */
     public function getStepRouteName(string $stepKey): string
@@ -100,18 +98,16 @@ class WorkflowDefinition
     /**
      * Get the URI path for a step.
      *
-     * @param string $stepKey The step key
+     * @param  string  $stepKey  The step key
      * @return string URI path in format: {entryPath}/{stepKey}
      */
     public function getStepPath(string $stepKey): string
     {
-        return rtrim($this->entryPath, '/') . '/' . ltrim($stepKey, '/');
+        return rtrim($this->entryPath, '/').'/'.ltrim($stepKey, '/');
     }
 
     /**
      * Check if history tracking is enabled.
-     *
-     * @return bool
      */
     public function hasHistory(): bool
     {
@@ -122,7 +118,6 @@ class WorkflowDefinition
      * Validate the workflow definition.
      *
      * @throws InvalidWorkflowConfigurationException
-     * @return void
      */
     protected function validate(): void
     {
@@ -142,7 +137,7 @@ class WorkflowDefinition
             throw new InvalidWorkflowConfigurationException("Workflow '{$this->flow}' must have a finish route.");
         }
 
-        if (!in_array($this->historyMode, ['none', 'stack'], true)) {
+        if (! in_array($this->historyMode, ['none', 'stack'], true)) {
             throw new InvalidWorkflowConfigurationException("History mode must be 'none' or 'stack', got '{$this->historyMode}'.");
         }
 

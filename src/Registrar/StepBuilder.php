@@ -17,21 +17,21 @@ use Pixelworxio\LivewireWorkflows\Support\StepDefinition;
 class StepBuilder
 {
     protected string $component = '';
+
     protected ?string $guardClass = null;
+
     protected int $order = 0;
 
     public function __construct(
         protected string $flow,
         protected string $key,
         protected FlowBuilder $flowBuilder,
-    ) {
-    }
+    ) {}
 
     /**
      * Specify the Livewire component to render for this step.
      *
-     * @param string $componentClass Full class name of the Livewire component
-     * @return static
+     * @param  string  $componentClass  Full class name of the Livewire component
      */
     public function goTo(string $componentClass): static
     {
@@ -46,8 +46,7 @@ class StepBuilder
      * If the guard's passes() method returns false, the step is shown.
      * If passes() returns true, the step is skipped.
      *
-     * @param string $guardClass Full class name of the guard
-     * @return static
+     * @param  string  $guardClass  Full class name of the guard
      */
     public function unlessPasses(string $guardClass): static
     {
@@ -59,8 +58,7 @@ class StepBuilder
     /**
      * Set the sort order for this step.
      *
-     * @param int $order Numeric sort order (lower numbers come first)
-     * @return static
+     * @param  int  $order  Numeric sort order (lower numbers come first)
      */
     public function order(int $order): static
     {
@@ -72,8 +70,7 @@ class StepBuilder
     /**
      * Begin defining another step (returns to the flow builder).
      *
-     * @param string $key The next step's identifier
-     * @return StepBuilder
+     * @param  string  $key  The next step's identifier
      */
     public function step(string $key): StepBuilder
     {
@@ -83,9 +80,8 @@ class StepBuilder
     /**
      * Set the workflow's entry route (returns to the flow builder).
      *
-     * @param string $name Route name
-     * @param string $path URI path
-     * @return FlowBuilder
+     * @param  string  $name  Route name
+     * @param  string  $path  URI path
      */
     public function entersAt(string $name, string $path): FlowBuilder
     {
@@ -95,8 +91,7 @@ class StepBuilder
     /**
      * Set the workflow's finish route (returns to the flow builder).
      *
-     * @param string $route Route name
-     * @return FlowBuilder
+     * @param  string  $route  Route name
      */
     public function finishesAt(string $route): FlowBuilder
     {
@@ -106,8 +101,7 @@ class StepBuilder
     /**
      * Set the workflow's history mode (returns to the flow builder).
      *
-     * @param string $mode 'none' or 'stack'
-     * @return FlowBuilder
+     * @param  string  $mode  'none' or 'stack'
      */
     public function historyMode(string $mode): FlowBuilder
     {
@@ -117,7 +111,6 @@ class StepBuilder
     /**
      * Build and add this step to the parent workflow.
      *
-     * @return void
      * @internal
      */
     public function build(): void

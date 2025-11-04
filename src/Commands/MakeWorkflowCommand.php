@@ -24,18 +24,19 @@ class MakeWorkflowCommand extends Command
 
         $workflowsPath = base_path('routes/workflows.php');
 
-        if (!File::exists($workflowsPath)) {
+        if (! File::exists($workflowsPath)) {
             $this->error('routes/workflows.php not found. Run workflows:install first.');
+
             return self::FAILURE;
         }
 
         $stub = $this->getStub($name, $studlyName);
 
         // Append to workflows file
-        File::append($workflowsPath, "\n" . $stub);
+        File::append($workflowsPath, "\n".$stub);
 
         $this->info("Workflow '{$name}' created successfully!");
-        $this->line("Edit routes/workflows.php to customize the workflow.");
+        $this->line('Edit routes/workflows.php to customize the workflow.');
 
         return self::SUCCESS;
     }

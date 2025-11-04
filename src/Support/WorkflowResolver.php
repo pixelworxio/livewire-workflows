@@ -19,14 +19,10 @@ class WorkflowResolver
     public function __construct(
         protected WorkflowRegistrar $registrar,
         protected WorkflowEngine $engine,
-    ) {
-    }
+    ) {}
 
     /**
      * Get a workflow definition.
-     *
-     * @param string $flow
-     * @return WorkflowDefinition
      */
     public function get(string $flow): WorkflowDefinition
     {
@@ -36,10 +32,7 @@ class WorkflowResolver
     /**
      * Redirect to the appropriate step or finish route.
      *
-     * @param string $flow
-     * @param Request $request
-     * @param string|null $doneRoute Optional override for finish route
-     * @return RedirectResponse
+     * @param  string|null  $doneRoute  Optional override for finish route
      */
     public function redirect(string $flow, Request $request, ?string $doneRoute = null): RedirectResponse
     {
@@ -49,6 +42,7 @@ class WorkflowResolver
         if ($nextStepKey === null) {
             // Workflow complete
             $this->engine->complete($workflow, $request);
+
             return Redirect::route($doneRoute ?? $workflow->finishRoute);
         }
 
@@ -61,10 +55,7 @@ class WorkflowResolver
     /**
      * Get the next route name for a user.
      *
-     * @param string $flow
-     * @param Request $request
-     * @param string|null $doneRoute Optional override for finish route
-     * @return string
+     * @param  string|null  $doneRoute  Optional override for finish route
      */
     public function nextRouteNameFor(string $flow, Request $request, ?string $doneRoute = null): string
     {
@@ -80,11 +71,6 @@ class WorkflowResolver
 
     /**
      * Get the previous route name relative to current step.
-     *
-     * @param string $flow
-     * @param string $currentKey
-     * @param Request $request
-     * @return string|null
      */
     public function previousRouteNameFor(string $flow, string $currentKey, Request $request): ?string
     {
@@ -100,10 +86,6 @@ class WorkflowResolver
 
     /**
      * Get progress information for a workflow.
-     *
-     * @param string $flow
-     * @param Request $request
-     * @return array
      */
     public function progressFor(string $flow, Request $request): array
     {

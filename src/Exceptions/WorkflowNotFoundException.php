@@ -14,8 +14,7 @@ class WorkflowNotFoundException extends Exception
     /**
      * Create a new exception for a missing workflow.
      *
-     * @param string $flow The workflow name that was not found
-     * @return static
+     * @param  string  $flow  The workflow name that was not found
      */
     public static function forFlow(string $flow): static
     {

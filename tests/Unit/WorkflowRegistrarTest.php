@@ -18,9 +18,9 @@ test('can register a workflow with DSL', function () {
         ->finishesAt('dashboard')
         ->historyMode('stack')
         ->step('verify-email')
-            ->goTo(Tests\Support\TestStepOneComponent::class)
-            ->unlessPasses(Tests\Support\TestStepOneGuard::class)
-            ->order(10);
+        ->goTo(Tests\Support\TestStepOneComponent::class)
+        ->unlessPasses(Tests\Support\TestStepOneGuard::class)
+        ->order(10);
 
     expect($this->registrar->has('onboarding'))->toBeTrue();
 
@@ -39,8 +39,8 @@ test('workflow generates correct step route names', function () {
         ->entersAt(name: 'onboarding.start', path: '/onboarding')
         ->finishesAt('dashboard')
         ->step('verify-email')
-            ->goTo(Tests\Support\TestStepOneComponent::class)
-            ->order(10);
+        ->goTo(Tests\Support\TestStepOneComponent::class)
+        ->order(10);
 
     $workflow = $this->registrar->get('onboarding');
 
@@ -52,8 +52,8 @@ test('workflow generates correct step paths', function () {
         ->entersAt(name: 'onboarding.start', path: '/onboarding')
         ->finishesAt('dashboard')
         ->step('verify-email')
-            ->goTo(Tests\Support\TestStepOneComponent::class)
-            ->order(10);
+        ->goTo(Tests\Support\TestStepOneComponent::class)
+        ->order(10);
 
     $workflow = $this->registrar->get('onboarding');
 
@@ -74,14 +74,14 @@ test('orders steps correctly', function () {
         ->entersAt(name: 'test.start', path: '/test')
         ->finishesAt('dashboard')
         ->step('step-three')
-            ->goTo(Tests\Support\TestStepOneComponent::class)
-            ->order(30)
+        ->goTo(Tests\Support\TestStepOneComponent::class)
+        ->order(30)
         ->step('step-one')
-            ->goTo(Tests\Support\TestStepOneComponent::class)
-            ->order(10)
+        ->goTo(Tests\Support\TestStepOneComponent::class)
+        ->order(10)
         ->step('step-two')
-            ->goTo(Tests\Support\TestStepOneComponent::class)
-            ->order(20);
+        ->goTo(Tests\Support\TestStepOneComponent::class)
+        ->order(20);
 
     $workflow = $this->registrar->get('test');
     $orderedSteps = $workflow->getOrderedSteps();
@@ -96,14 +96,14 @@ test('finds previous step correctly', function () {
         ->entersAt(name: 'test.start', path: '/test')
         ->finishesAt('dashboard')
         ->step('step-one')
-            ->goTo(Tests\Support\TestStepOneComponent::class)
-            ->order(10)
+        ->goTo(Tests\Support\TestStepOneComponent::class)
+        ->order(10)
         ->step('step-two')
-            ->goTo(Tests\Support\TestStepOneComponent::class)
-            ->order(20)
+        ->goTo(Tests\Support\TestStepOneComponent::class)
+        ->order(20)
         ->step('step-three')
-            ->goTo(Tests\Support\TestStepOneComponent::class)
-            ->order(30);
+        ->goTo(Tests\Support\TestStepOneComponent::class)
+        ->order(30);
 
     $workflow = $this->registrar->get('test');
 

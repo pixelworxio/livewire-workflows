@@ -17,8 +17,7 @@ class SessionWorkflowStateRepository implements WorkflowStateRepository
 {
     public function __construct(
         protected SessionManager $session
-    ) {
-    }
+    ) {}
 
     public function getCurrentStep(string $flow, string|int|null $userKey): ?string
     {
@@ -76,15 +75,11 @@ class SessionWorkflowStateRepository implements WorkflowStateRepository
 
     /**
      * Generate a session key for workflow state.
-     *
-     * @param string $flow
-     * @param string|int|null $userKey
-     * @param string $suffix
-     * @return string
      */
     protected function keyFor(string $flow, string|int|null $userKey, string $suffix): string
     {
         $userPart = $userKey ?? 'guest';
+
         return "workflows.{$flow}.{$userPart}.{$suffix}";
     }
 }

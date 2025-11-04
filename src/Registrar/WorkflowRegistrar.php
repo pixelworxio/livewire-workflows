@@ -23,8 +23,7 @@ class WorkflowRegistrar
     /**
      * Start defining a new workflow.
      *
-     * @param string $flow The workflow name/identifier
-     * @return FlowBuilder
+     * @param  string  $flow  The workflow name/identifier
      */
     public function flow(string $flow): FlowBuilder
     {
@@ -33,9 +32,6 @@ class WorkflowRegistrar
 
     /**
      * Register a completed workflow definition.
-     *
-     * @param WorkflowDefinition $definition
-     * @return void
      */
     public function register(WorkflowDefinition $definition): void
     {
@@ -45,13 +41,13 @@ class WorkflowRegistrar
     /**
      * Get a workflow definition by name.
      *
-     * @param string $flow The workflow name
-     * @return WorkflowDefinition
+     * @param  string  $flow  The workflow name
+     *
      * @throws WorkflowNotFoundException
      */
     public function get(string $flow): WorkflowDefinition
     {
-        if (!isset($this->workflows[$flow])) {
+        if (! isset($this->workflows[$flow])) {
             throw WorkflowNotFoundException::forFlow($flow);
         }
 
@@ -61,8 +57,7 @@ class WorkflowRegistrar
     /**
      * Check if a workflow exists.
      *
-     * @param string $flow The workflow name
-     * @return bool
+     * @param  string  $flow  The workflow name
      */
     public function has(string $flow): bool
     {
@@ -81,8 +76,6 @@ class WorkflowRegistrar
 
     /**
      * Clear all registered workflows (useful for testing).
-     *
-     * @return void
      */
     public function clear(): void
     {

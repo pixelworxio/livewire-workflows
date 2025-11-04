@@ -19,8 +19,7 @@ class WorkflowEntryController extends Controller
 {
     public function __construct(
         protected WorkflowResolver $resolver,
-    ) {
-    }
+    ) {}
 
     /**
      * Handle workflow entry.
@@ -28,9 +27,7 @@ class WorkflowEntryController extends Controller
      * Determines the workflow from the current route name and redirects
      * to the appropriate step or completion destination.
      *
-     * @param Request $request
-     * @param string $flow The workflow identifier
-     * @return RedirectResponse
+     * @param  string  $flow  The workflow identifier
      */
     public function __invoke(Request $request, string $flow): RedirectResponse
     {

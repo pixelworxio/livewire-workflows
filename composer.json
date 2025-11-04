@@ -35,7 +35,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Pixelworx\\LivewireWorkflows\\": "src/"
+            "Pixelworxio\\LivewireWorkflows\\": "src/"
         },
         "files": [
             "src/helpers.php"
@@ -43,6 +43,7 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "Pixelworxio\\LivewireWorkflows\\Tests\\": "tests/",
             "Tests\\": "tests/"
         }
     },
@@ -58,10 +59,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Pixelworx\\LivewireWorkflows\\LivewireWorkflowsServiceProvider"
+                "Pixelworxio\\LivewireWorkflows\\LivewireWorkflowsServiceProvider"
             ],
             "aliases": {
-                "Workflow": "Pixelworx\\LivewireWorkflows\\Facades\\Workflow"
+                "Workflow": "Pixelworxio\\LivewireWorkflows\\Facades\\Workflow"
             }
         }
     },

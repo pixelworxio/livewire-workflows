@@ -4,140 +4,119 @@ declare(strict_types=1);
 
 namespace Pixelworxio\LivewireWorkflows\Registrar;
 
-use Pixelworxio\LivewireWorkflows\Support\StepDefinition;
+use Pixelworxio\LivewireWorkflows\Exceptions\InvalidWorkflowConfigurationException;
 use Pixelworxio\LivewireWorkflows\Support\WorkflowDefinition;
 
-/**
- * Fluent builder for defining a workflow.
- *
- * Provides the readable DSL for configuring workflows:
- * - entersAt() for entry routing
- * - finishesAt() for completion destination
- * - historyMode() for state tracking
- * - step() for adding workflow steps
- */
 class FlowBuilder
 {
-    protected string $entryRouteName = '';
-
-    protected string $entryPath = '';
-
-    protected string $finishRoute = '';
-
+    protected ?string $entryName = null;
+    protected ?string $entryPath = null;
+    protected ?string $finishRoute = null;
     protected string $historyMode = 'none';
-
-    /**
-     * @var array<string, StepDefinition>
-     */
-    protected array $steps = [];
-
-    protected ?StepBuilder $currentStepBuilder = null;
+    protected ?StepBuilder $currentStep = null;
+    public array $steps = [];
+    protected bool $isBuilt = false;
 
     public function __construct(
         protected string $flow,
-        protected WorkflowRegistrar $registrar,
-    ) {}
+        protected WorkflowRegistrar $registrar
+    ) {
+    }
 
-    /**
-     * Define the workflow entry route.
-     *
-     * @param  string  $name  The route name (e.g., 'onboarding.start')
-     * @param  string  $path  The base URI path (e.g., '/onboarding')
-     */
     public function entersAt(string $name, string $path): static
     {
-        $this->finalizeCurrentStep();
-
-        $this->entryRouteName = $name;
+        $this->entryName = $name;
         $this->entryPath = $path;
 
         return $this;
     }
 
-    /**
-     * Define where to redirect on workflow completion.
-     *
-     * @param  string  $route  The route name to redirect to
-     */
     public function finishesAt(string $route): static
     {
-        $this->finalizeCurrentStep();
-
         $this->finishRoute = $route;
+
+        // Eager validation: if entryName is not set, fail immediately
+        if ($this->entryName === null) {
+            throw new InvalidWorkflowConfigurationException(
+                "Workflow '{$this->flow}' must define an entry route using entersAt()."
+            );
+        }
 
         return $this;
     }
 
-    /**
-     * Set the history tracking mode.
-     *
-     * @param  string  $mode  Either 'none' (default) or 'stack'
-     */
     public function historyMode(string $mode): static
     {
-        $this->finalizeCurrentStep();
+        if (! in_array($mode, ['none', 'stack'])) {
+            throw new InvalidWorkflowConfigurationException(
+                "History mode must be 'none' or 'stack', '{$mode}' given."
+            );
+        }
 
         $this->historyMode = $mode;
 
         return $this;
     }
 
-    /**
-     * Begin defining a new step.
-     *
-     * @param  string  $key  The step identifier
-     */
     public function step(string $key): StepBuilder
     {
-        $this->finalizeCurrentStep();
-
-        $this->currentStepBuilder = new StepBuilder($this->flow, $key, $this);
-
-        return $this->currentStepBuilder;
-    }
-
-    /**
-     * Add a completed step to this workflow.
-     *
-     * @internal
-     */
-    public function addStep(StepDefinition $step): void
-    {
-        $this->steps[$step->key] = $step;
-    }
-
-    /**
-     * Finalize the current step being built.
-     */
-    protected function finalizeCurrentStep(): void
-    {
-        if ($this->currentStepBuilder !== null) {
-            $this->currentStepBuilder->build();
-            $this->currentStepBuilder = null;
+        if ($this->currentStep !== null) {
+            $stepDef = $this->currentStep->build();
+            $this->steps[$stepDef->key] = $stepDef;
         }
+
+        $this->currentStep = new StepBuilder($key, $this->flow, $this);
+
+        return $this->currentStep;
     }
 
-    /**
-     * Build and register the workflow definition.
-     *
-     * This is called automatically when a new workflow is started
-     * or when the service provider finishes loading workflows.
-     */
     public function build(): WorkflowDefinition
     {
-        $this->finalizeCurrentStep();
+        if ($this->isBuilt) {
+            return $this->registrar->get($this->flow);
+        }
 
-        $definition = new WorkflowDefinition(
+        if ($this->currentStep !== null) {
+            $stepDef = $this->currentStep->build();
+            $this->steps[$stepDef->key] = $stepDef;
+            $this->currentStep = null;
+        }
+
+        if ($this->entryName === null || $this->entryPath === null) {
+            throw new InvalidWorkflowConfigurationException(
+                "Workflow '{$this->flow}' must define an entry route using entersAt()."
+            );
+        }
+
+        if ($this->finishRoute === null) {
+            throw new InvalidWorkflowConfigurationException(
+                "Workflow '{$this->flow}' must define a finish route using finishesAt()."
+            );
+        }
+
+        $workflow = new WorkflowDefinition(
             flow: $this->flow,
-            entryRouteName: $this->entryRouteName,
+            entryRouteName: $this->entryName,
             entryPath: $this->entryPath,
             finishRoute: $this->finishRoute,
             historyMode: $this->historyMode,
-            steps: $this->steps,
+            steps: $this->steps
         );
 
-        $this->registrar->register($definition);
+        $this->registrar->register($workflow);
+        $this->isBuilt = true;
 
-        return $definition;
+        return $workflow;
+    }
+
+    public function __destruct()
+    {
+        if (!$this->isBuilt && $this->finishRoute !== null) {
+            try {
+                $this->build();
+            } catch (\Throwable $e) {
+                // Suppress in destructor
+            }
+        }
     }
 }

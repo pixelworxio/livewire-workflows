@@ -1,10 +1,10 @@
 <?php
 
-namespace Pixelworx\LivewireWorkflows\Tests;
+namespace Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Pixelworx\LivewireWorkflows\LivewireWorkflowsServiceProvider;
+use Pixelworxio\LivewireWorkflows\LivewireWorkflowsServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -17,14 +17,14 @@ class TestCase extends Orchestra
         );
     }
 
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [
             LivewireWorkflowsServiceProvider::class,
         ];
     }
 
-    public function getEnvironmentSetUp($app)
+    public function getEnvironmentSetUp($app): void
     {
         config()->set('database.default', 'testing');
 

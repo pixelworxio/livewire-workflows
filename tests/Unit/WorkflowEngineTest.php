@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use Illuminate\Http\Request;
+use Illuminate\Session\Store;
+use Illuminate\Support\Facades\Session;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use Pixelworxio\LivewireWorkflows\Facades\Workflow;
 use Pixelworxio\LivewireWorkflows\Support\WorkflowEngine;
@@ -25,7 +27,15 @@ beforeEach(function () {
 
     $this->workflow = app(Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class)->get('test-flow');
     $this->engine = app(WorkflowEngine::class);
+
+    // Properly initialize request with session
     $this->request = Request::create('/test');
+
+    // Start a session and attach it to the request
+    $session = app('session')->driver();
+    $session->setId(\Illuminate\Support\Str::random(40));
+    $session->start();
+    $this->request->setLaravelSession($session);
 });
 
 test('determines next step when first guard fails', function () {
@@ -71,14 +81,15 @@ test('calculates progress correctly', function () {
 
 test('tracks history when advancing steps', function () {
     $repository = app(WorkflowStateRepository::class);
+    $sessionId = $this->request->session()->getId();
 
     $this->engine->advanceTo($this->workflow, 'step-one', $this->request);
-    $history = $repository->getHistory('test-flow', session()->getId());
+    $history = $repository->getHistory('test-flow', $sessionId);
 
     expect($history)->toContain('step-one');
 
     $this->engine->advanceTo($this->workflow, 'step-two', $this->request);
-    $history = $repository->getHistory('test-flow', session()->getId());
+    $history = $repository->getHistory('test-flow', $sessionId);
 
     expect($history)->toContain('step-one')
         ->and($history)->toContain('step-two');

@@ -119,7 +119,12 @@ class WorkflowEngine
         }
 
         // Fire event
-        WorkflowAdvanced::dispatch($workflow->flow, $userKey, $fromKey, $toKey);
+        event(new WorkflowAdvanced(
+            flow: $workflow->flow,
+            userKey: $userKey,
+            fromKey: $fromKey,
+            toKey: $toKey,
+        ));
     }
 
     /**
@@ -133,7 +138,10 @@ class WorkflowEngine
         $this->stateRepository->clear($workflow->flow, $userKey);
 
         // Fire completion event
-        WorkflowCompleted::dispatch($workflow->flow, $userKey);
+        event(new WorkflowCompleted(
+            flow: $workflow->flow,
+            userKey: $userKey,
+        ));
     }
 
     /**

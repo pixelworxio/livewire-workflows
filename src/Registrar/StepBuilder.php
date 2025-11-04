@@ -6,60 +6,33 @@ namespace Pixelworxio\LivewireWorkflows\Registrar;
 
 use Pixelworxio\LivewireWorkflows\Support\StepDefinition;
 
-/**
- * Fluent builder for defining a workflow step.
- *
- * Provides chainable methods:
- * - goTo() to specify the Livewire component
- * - unlessPasses() to specify the guard
- * - order() to set step ordering
- */
 class StepBuilder
 {
-    protected string $component = '';
-
-    protected ?string $guardClass = null;
-
+    protected ?string $component = null;
+    protected ?string $guard = null;
     protected int $order = 0;
 
     public function __construct(
-        protected string $flow,
         protected string $key,
-        protected FlowBuilder $flowBuilder,
-    ) {}
+        protected string $flow,
+        protected FlowBuilder $flowBuilder
+    ) {
+    }
 
-    /**
-     * Specify the Livewire component to render for this step.
-     *
-     * @param  string  $componentClass  Full class name of the Livewire component
-     */
-    public function goTo(string $componentClass): static
+    public function goTo(string $component): static
     {
-        $this->component = $componentClass;
+        $this->component = $component;
 
         return $this;
     }
 
-    /**
-     * Specify the guard that determines if this step should be shown.
-     *
-     * If the guard's passes() method returns false, the step is shown.
-     * If passes() returns true, the step is skipped.
-     *
-     * @param  string  $guardClass  Full class name of the guard
-     */
-    public function unlessPasses(string $guardClass): static
+    public function unlessPasses(string $guard): static
     {
-        $this->guardClass = $guardClass;
+        $this->guard = $guard;
 
         return $this;
     }
 
-    /**
-     * Set the sort order for this step.
-     *
-     * @param  int  $order  Numeric sort order (lower numbers come first)
-     */
     public function order(int $order): static
     {
         $this->order = $order;
@@ -67,62 +40,30 @@ class StepBuilder
         return $this;
     }
 
-    /**
-     * Begin defining another step (returns to the flow builder).
-     *
-     * @param  string  $key  The next step's identifier
-     */
-    public function step(string $key): StepBuilder
+    public function step(string $key): self
     {
+        // Return to flow builder and start a new step
         return $this->flowBuilder->step($key);
     }
 
-    /**
-     * Set the workflow's entry route (returns to the flow builder).
-     *
-     * @param  string  $name  Route name
-     * @param  string  $path  URI path
-     */
-    public function entersAt(string $name, string $path): FlowBuilder
+    public function build(): StepDefinition
     {
-        return $this->flowBuilder->entersAt($name, $path);
-    }
-
-    /**
-     * Set the workflow's finish route (returns to the flow builder).
-     *
-     * @param  string  $route  Route name
-     */
-    public function finishesAt(string $route): FlowBuilder
-    {
-        return $this->flowBuilder->finishesAt($route);
-    }
-
-    /**
-     * Set the workflow's history mode (returns to the flow builder).
-     *
-     * @param  string  $mode  'none' or 'stack'
-     */
-    public function historyMode(string $mode): FlowBuilder
-    {
-        return $this->flowBuilder->historyMode($mode);
-    }
-
-    /**
-     * Build and add this step to the parent workflow.
-     *
-     * @internal
-     */
-    public function build(): void
-    {
-        $step = new StepDefinition(
-            flow: $this->flow,
+        return new StepDefinition(
             key: $this->key,
+            flow: $this->flow,
             component: $this->component,
-            guardClass: $this->guardClass,
-            order: $this->order,
+            guardClass: $this->guard,
+            order: $this->order
         );
+    }
 
-        $this->flowBuilder->addStep($step);
+    public function __call(string $method, array $arguments)
+    {
+        // Proxy unknown methods to the flow builder
+        if (method_exists($this->flowBuilder, $method)) {
+            return $this->flowBuilder->$method(...$arguments);
+        }
+
+        throw new \BadMethodCallException("Method {$method} does not exist on " . static::class);
     }
 }

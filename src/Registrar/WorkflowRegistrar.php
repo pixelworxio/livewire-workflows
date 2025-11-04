@@ -7,78 +7,71 @@ namespace Pixelworxio\LivewireWorkflows\Registrar;
 use Pixelworxio\LivewireWorkflows\Exceptions\WorkflowNotFoundException;
 use Pixelworxio\LivewireWorkflows\Support\WorkflowDefinition;
 
-/**
- * Central registry for all workflows.
- *
- * Maintains the collection of workflow definitions and provides
- * access to them throughout the application.
- */
 class WorkflowRegistrar
 {
-    /**
-     * @var array<string, WorkflowDefinition>
-     */
     protected array $workflows = [];
+    protected array $pendingBuilders = [];
 
-    /**
-     * Start defining a new workflow.
-     *
-     * @param  string  $flow  The workflow name/identifier
-     */
-    public function flow(string $flow): FlowBuilder
+    public function flow(string $name): FlowBuilder
     {
-        return new FlowBuilder($flow, $this);
+        $builder = new FlowBuilder($name, $this);
+        $this->pendingBuilders[$name] = $builder;
+
+        return $builder;
     }
 
-    /**
-     * Register a completed workflow definition.
-     */
-    public function register(WorkflowDefinition $definition): void
+    public function register(WorkflowDefinition $workflow): void
     {
-        $this->workflows[$definition->flow] = $definition;
+        $this->workflows[$workflow->flow] = $workflow;
+        unset($this->pendingBuilders[$workflow->flow]);
     }
 
-    /**
-     * Get a workflow definition by name.
-     *
-     * @param  string  $flow  The workflow name
-     *
-     * @throws WorkflowNotFoundException
-     */
     public function get(string $flow): WorkflowDefinition
     {
-        if (! isset($this->workflows[$flow])) {
+        $this->finalizePending($flow);
+
+        if (! $this->has($flow)) {
             throw WorkflowNotFoundException::forFlow($flow);
         }
 
         return $this->workflows[$flow];
     }
 
-    /**
-     * Check if a workflow exists.
-     *
-     * @param  string  $flow  The workflow name
-     */
     public function has(string $flow): bool
     {
+        $this->finalizePending($flow);
+
         return isset($this->workflows[$flow]);
     }
 
-    /**
-     * Get all registered workflows.
-     *
-     * @return array<string, WorkflowDefinition>
-     */
     public function all(): array
     {
+        $this->finalizeAllPending();
+
         return $this->workflows;
     }
 
-    /**
-     * Clear all registered workflows (useful for testing).
-     */
     public function clear(): void
     {
         $this->workflows = [];
+        $this->pendingBuilders = [];
+    }
+
+    protected function finalizePending(string $flow): void
+    {
+        if (isset($this->pendingBuilders[$flow])) {
+            $this->pendingBuilders[$flow]->build();
+        }
+    }
+
+    protected function finalizeAllPending(): void
+    {
+        foreach ($this->pendingBuilders as $builder) {
+            try {
+                $builder->build();
+            } catch (\Throwable $e) {
+                // Skip invalid builders
+            }
+        }
     }
 }

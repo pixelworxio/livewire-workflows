@@ -31,8 +31,8 @@ class WorkflowsInstallCommand extends Command
         // Create routes/workflows.php if it doesn't exist
         $workflowsPath = base_path('routes/workflows.php');
 
-        if (!File::exists($workflowsPath)) {
-            $stub = File::get(__DIR__ . '/../../stubs/workflows.php.stub');
+        if (! File::exists($workflowsPath)) {
+            $stub = File::get(__DIR__.'/../../stubs/workflows.php.stub');
             File::put($workflowsPath, $stub);
             $this->info('Created routes/workflows.php');
         } else {
@@ -59,13 +59,13 @@ class WorkflowsInstallCommand extends Command
     protected function installDatabase(): void
     {
         // Publish migration
-        $migrationStub = __DIR__ . '/../../database/migrations/create_workflow_states_table.php.stub';
-        $migrationName = date('Y_m_d_His') . '_create_workflow_states_table.php';
-        $migrationPath = database_path('migrations/' . $migrationName);
+        $migrationStub = __DIR__.'/../../database/migrations/create_workflow_states_table.php.stub';
+        $migrationName = date('Y_m_d_His').'_create_workflow_states_table.php';
+        $migrationPath = database_path('migrations/'.$migrationName);
 
-        if (!File::exists($migrationPath)) {
+        if (! File::exists($migrationPath)) {
             File::copy($migrationStub, $migrationPath);
-            $this->info('Published migration: ' . $migrationName);
+            $this->info('Published migration: '.$migrationName);
         }
 
         // Update config to use Eloquent repository

@@ -6,8 +6,6 @@ namespace Pixelworxio\LivewireWorkflows\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 
 /**
  * Command to add a step to an existing workflow.
@@ -32,7 +30,7 @@ class MakeWorkflowStepCommand extends Command
         $order = (int) $this->option('order');
 
         // Generate component if provided and doesn't exist
-        if ($componentClass && !class_exists($componentClass)) {
+        if ($componentClass && ! class_exists($componentClass)) {
             $componentName = str_replace(['App\\Livewire\\', '\\'], ['', '.'], $componentClass);
 
             $this->info("Component {$componentClass} not found. Creating...");

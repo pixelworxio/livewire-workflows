@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Pixelworxio\LivewireWorkflows\StateRepositories;
 
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Support\Facades\DB;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 
 /**
@@ -20,8 +19,7 @@ class EloquentWorkflowStateRepository implements WorkflowStateRepository
 
     public function __construct(
         protected ConnectionInterface $db
-    ) {
-    }
+    ) {}
 
     public function getCurrentStep(string $flow, string|int|null $userKey): ?string
     {
@@ -48,7 +46,7 @@ class EloquentWorkflowStateRepository implements WorkflowStateRepository
     {
         $record = $this->findRecord($flow, $userKey);
 
-        if (!$record || !$record->history) {
+        if (! $record || ! $record->history) {
             return [];
         }
 
@@ -110,7 +108,7 @@ class EloquentWorkflowStateRepository implements WorkflowStateRepository
     {
         $record = $this->findRecord($flow, $userKey);
 
-        if (!$record || !$record->metadata) {
+        if (! $record || ! $record->metadata) {
             return [];
         }
 
@@ -135,10 +133,6 @@ class EloquentWorkflowStateRepository implements WorkflowStateRepository
 
     /**
      * Find a workflow state record.
-     *
-     * @param string $flow
-     * @param string|int|null $userKey
-     * @return object|null
      */
     protected function findRecord(string $flow, string|int|null $userKey): ?object
     {

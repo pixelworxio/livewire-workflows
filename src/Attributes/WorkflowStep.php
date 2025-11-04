@@ -19,6 +19,5 @@ class WorkflowStep
         public readonly string $flow,
         public readonly string $key,
         public readonly int $order = 0,
-    ) {
-    }
+    ) {}
 }

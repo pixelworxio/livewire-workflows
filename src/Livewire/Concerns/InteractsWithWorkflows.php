@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Pixelworxio\LivewireWorkflows\Livewire\Concerns;
 
-use Illuminate\Http\RedirectResponse;
 use Livewire\Features\SupportRedirects\Redirector;
 
 /**
@@ -22,8 +21,7 @@ trait InteractsWithWorkflows
      * Redirects to the workflow entry route which will evaluate guards
      * and redirect to the appropriate next step or finish route.
      *
-     * @param string $flow The workflow identifier
-     * @return Redirector
+     * @param  string  $flow  The workflow identifier
      */
     public function continue(string $flow): Redirector
     {
@@ -35,9 +33,8 @@ trait InteractsWithWorkflows
     /**
      * Go back to the previous workflow step.
      *
-     * @param string $flow The workflow identifier
-     * @param string $currentKey The current step key
-     * @return Redirector|null
+     * @param  string  $flow  The workflow identifier
+     * @param  string  $currentKey  The current step key
      */
     public function back(string $flow, string $currentKey): ?Redirector
     {

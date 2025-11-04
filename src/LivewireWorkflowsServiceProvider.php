@@ -23,7 +23,7 @@ class LivewireWorkflowsServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/livewire-workflows.php', 'livewire-workflows');
+        $this->mergeConfigFrom(__DIR__.'/../config/livewire-workflows.php', 'livewire-workflows');
 
         // Register core services
         $this->app->singleton(WorkflowRegistrar::class);
@@ -64,11 +64,11 @@ class LivewireWorkflowsServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__ . '/../config/livewire-workflows.php' => config_path('livewire-workflows.php'),
+                __DIR__.'/../config/livewire-workflows.php' => config_path('livewire-workflows.php'),
             ], 'livewire-workflows-config');
 
             $this->publishes([
-                __DIR__ . '/../database/migrations/create_workflow_states_table.php.stub' => database_path('migrations/' . date('Y_m_d_His') . '_create_workflow_states_table.php'),
+                __DIR__.'/../database/migrations/create_workflow_states_table.php.stub' => database_path('migrations/'.date('Y_m_d_His').'_create_workflow_states_table.php'),
             ], 'livewire-workflows-migrations');
         }
     }

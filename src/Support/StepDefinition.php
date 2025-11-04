@@ -17,11 +17,11 @@ use Pixelworxio\LivewireWorkflows\Exceptions\InvalidWorkflowConfigurationExcepti
 class StepDefinition
 {
     /**
-     * @param string $flow The parent workflow name
-     * @param string $key The step identifier/key
-     * @param string $component Full class name of the Livewire component
-     * @param string|null $guardClass Full class name of the guard (optional)
-     * @param int $order Sort order for this step
+     * @param  string  $flow  The parent workflow name
+     * @param  string  $key  The step identifier/key
+     * @param  string  $component  Full class name of the Livewire component
+     * @param  string|null  $guardClass  Full class name of the guard (optional)
+     * @param  int  $order  Sort order for this step
      */
     public function __construct(
         public readonly string $flow,
@@ -35,8 +35,6 @@ class StepDefinition
 
     /**
      * Check if this step has a guard.
-     *
-     * @return bool
      */
     public function hasGuard(): bool
     {
@@ -47,7 +45,6 @@ class StepDefinition
      * Validate the step definition.
      *
      * @throws InvalidWorkflowConfigurationException
-     * @return void
      */
     protected function validate(): void
     {
@@ -63,13 +60,13 @@ class StepDefinition
             throw new InvalidWorkflowConfigurationException("Step '{$this->key}' in flow '{$this->flow}' must have a component.");
         }
 
-        if (!class_exists($this->component)) {
+        if (! class_exists($this->component)) {
             throw new InvalidWorkflowConfigurationException(
                 "Step '{$this->key}' component class '{$this->component}' does not exist."
             );
         }
 
-        if ($this->guardClass !== null && !class_exists($this->guardClass)) {
+        if ($this->guardClass !== null && ! class_exists($this->guardClass)) {
             throw new InvalidWorkflowConfigurationException(
                 "Step '{$this->key}' guard class '{$this->guardClass}' does not exist."
             );

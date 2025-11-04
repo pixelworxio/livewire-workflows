@@ -17,9 +17,9 @@ beforeEach(function () {
         ->entersAt(name: 'onboarding.start', path: '/onboarding')
         ->finishesAt('dashboard')
         ->step('step-one')
-            ->goTo(Tests\Support\TestStepOneComponent::class)
-            ->unlessPasses(Tests\Support\TestStepOneGuard::class)
-            ->order(10);
+        ->goTo(Tests\Support\TestStepOneComponent::class)
+        ->unlessPasses(Tests\Support\TestStepOneGuard::class)
+        ->order(10);
 
     app(Pixelworxio\LivewireWorkflows\LivewireWorkflowsServiceProvider::class)->registerRoutes();
     Route::get('/dashboard', fn () => 'Dashboard')->name('dashboard');

@@ -20,11 +20,11 @@ function createTestWorkflow(): void
         ->finishesAt('dashboard')
         ->historyMode('stack')
         ->step('step-one')
-            ->goTo(Tests\Support\TestStepOneComponent::class)
-            ->unlessPasses(Tests\Support\TestStepOneGuard::class)
-            ->order(10)
+        ->goTo(Tests\Support\TestStepOneComponent::class)
+        ->unlessPasses(Tests\Support\TestStepOneGuard::class)
+        ->order(10)
         ->step('step-two')
-            ->goTo(Tests\Support\TestStepTwoComponent::class)
-            ->unlessPasses(Tests\Support\TestStepTwoGuard::class)
-            ->order(20);
+        ->goTo(Tests\Support\TestStepTwoComponent::class)
+        ->unlessPasses(Tests\Support\TestStepTwoGuard::class)
+        ->order(20);
 }

@@ -19,8 +19,11 @@ use Pixelworxio\LivewireWorkflows\Support\WorkflowDefinition;
 class FlowBuilder
 {
     protected string $entryRouteName = '';
+
     protected string $entryPath = '';
+
     protected string $finishRoute = '';
+
     protected string $historyMode = 'none';
 
     /**
@@ -33,15 +36,13 @@ class FlowBuilder
     public function __construct(
         protected string $flow,
         protected WorkflowRegistrar $registrar,
-    ) {
-    }
+    ) {}
 
     /**
      * Define the workflow entry route.
      *
-     * @param string $name The route name (e.g., 'onboarding.start')
-     * @param string $path The base URI path (e.g., '/onboarding')
-     * @return static
+     * @param  string  $name  The route name (e.g., 'onboarding.start')
+     * @param  string  $path  The base URI path (e.g., '/onboarding')
      */
     public function entersAt(string $name, string $path): static
     {
@@ -56,8 +57,7 @@ class FlowBuilder
     /**
      * Define where to redirect on workflow completion.
      *
-     * @param string $route The route name to redirect to
-     * @return static
+     * @param  string  $route  The route name to redirect to
      */
     public function finishesAt(string $route): static
     {
@@ -71,8 +71,7 @@ class FlowBuilder
     /**
      * Set the history tracking mode.
      *
-     * @param string $mode Either 'none' (default) or 'stack'
-     * @return static
+     * @param  string  $mode  Either 'none' (default) or 'stack'
      */
     public function historyMode(string $mode): static
     {
@@ -86,8 +85,7 @@ class FlowBuilder
     /**
      * Begin defining a new step.
      *
-     * @param string $key The step identifier
-     * @return StepBuilder
+     * @param  string  $key  The step identifier
      */
     public function step(string $key): StepBuilder
     {
@@ -101,8 +99,6 @@ class FlowBuilder
     /**
      * Add a completed step to this workflow.
      *
-     * @param StepDefinition $step
-     * @return void
      * @internal
      */
     public function addStep(StepDefinition $step): void
@@ -112,8 +108,6 @@ class FlowBuilder
 
     /**
      * Finalize the current step being built.
-     *
-     * @return void
      */
     protected function finalizeCurrentStep(): void
     {
@@ -128,8 +122,6 @@ class FlowBuilder
      *
      * This is called automatically when a new workflow is started
      * or when the service provider finishes loading workflows.
-     *
-     * @return WorkflowDefinition
      */
     public function build(): WorkflowDefinition
     {

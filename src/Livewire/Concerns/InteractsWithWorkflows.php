@@ -27,11 +27,42 @@ trait InteractsWithWorkflows
     protected ?string $workflowName = null;
 
     /**
+     * Mount hook to auto-detect workflow name from route or use explicit assignment.
+     */
+    public function mountInteractsWithWorkflows(): void
+    {
+        // If workflow name not already set, try to detect from current route
+        if ($this->workflowName === null) {
+            $routeName = request()->route()?->getName();
+
+            if ($routeName && str_contains($routeName, '.')) {
+                // Extract flow from route name (e.g., 'onboarding.step-one' -> 'onboarding')
+                $parts = explode('.', $routeName);
+                if (count($parts) >= 2) {
+                    $possibleFlow = $parts[0];
+
+                    // Verify this flow exists in the registrar
+                    try {
+                        $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
+                        if ($registrar->has($possibleFlow)) {
+                            $this->workflowName = $possibleFlow;
+                        }
+                    } catch (\Throwable $e) {
+                        // Registrar not available (likely in tests), skip auto-detection
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Boot the trait.
      */
     public function bootInteractsWithWorkflows(): void
     {
-        $this->hydrateWorkflowState();
+        if ($this->workflowName !== null) {
+            $this->hydrateWorkflowState();
+        }
     }
 
     /**
@@ -39,21 +70,26 @@ trait InteractsWithWorkflows
      */
     public function dehydrateInteractsWithWorkflows(): void
     {
-        $this->syncWorkflowState();
+        if ($this->workflowName !== null) {
+            $this->syncWorkflowState();
+        }
     }
 
     /**
-     * Set workflow name
+     * Set workflow name (useful for testing or manual assignment)
      */
     public function setWorkflowName(string $workflowName): void
     {
         $this->workflowName = $workflowName;
+
+        // Hydrate state immediately after setting workflow name
+        $this->hydrateWorkflowState();
     }
 
     /**
      * Get workflow name
      */
-    public function getWorkflowName(): string
+    public function getWorkflowName(): ?string
     {
         return $this->workflowName;
     }

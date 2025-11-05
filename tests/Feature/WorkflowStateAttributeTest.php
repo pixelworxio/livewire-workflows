@@ -33,6 +33,12 @@ class TestComponentWithState extends Component
     #[WorkflowState(namespace: 'profile')]
     public ?string $name = null;
 
+    public function mount()
+    {
+        // Explicitly set workflow name for testing
+        $this->setWorkflowName('test-flow');
+    }
+
     public function render()
     {
         return '<div>Test Component</div>';

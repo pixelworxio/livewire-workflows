@@ -20,8 +20,6 @@ class ComponentWithEncryption extends Component
 {
     use InteractsWithWorkflows;
 
-    protected ?string $workflowName = 'secure-flow';
-
     #[WorkflowState]
     public ?string $publicData = null;
 
@@ -30,6 +28,12 @@ class ComponentWithEncryption extends Component
 
     #[WorkflowState(encrypt: true)]
     public ?array $sensitiveArray = null;
+
+    public function mount()
+    {
+        // Explicitly set workflow name for testing
+        $this->setWorkflowName('secure-flow');
+    }
 
     public function render()
     {
@@ -151,7 +155,10 @@ class ComponentWithEncryptionHelper extends Component
 {
     use InteractsWithWorkflows;
 
-    protected ?string $workflowName = 'secure-flow';
+    public function mount()
+    {
+        $this->setWorkflowName('secure-flow');
+    }
 
     public function saveEncrypted($value)
     {

@@ -18,7 +18,11 @@ class TestComponentWithHelpers extends Component
 {
     use InteractsWithWorkflows;
 
-    protected ?string $workflowName = 'test-flow';
+    public function mount()
+    {
+        // Explicitly set workflow name for testing
+        $this->setWorkflowName('test-flow');
+    }
 
     public function saveData()
     {

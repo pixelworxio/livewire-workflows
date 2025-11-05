@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pixelworxio\LivewireWorkflows\StateRepositories;
 
 use Illuminate\Session\SessionManager;
+use Illuminate\Support\Arr;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 
 /**
@@ -61,6 +62,7 @@ class SessionWorkflowStateRepository implements WorkflowStateRepository
         $this->session->forget($this->keyFor($flow, $userKey, 'current'));
         $this->session->forget($this->keyFor($flow, $userKey, 'history'));
         $this->session->forget($this->keyFor($flow, $userKey, 'metadata'));
+        $this->session->forget($this->stateKeyFor($flow, $userKey));
     }
 
     public function getMetadata(string $flow, string|int|null $userKey): array
@@ -73,6 +75,59 @@ class SessionWorkflowStateRepository implements WorkflowStateRepository
         $this->session->put($this->keyFor($flow, $userKey, 'metadata'), $metadata);
     }
 
+    public function getState(string $flow, string|int|null $userKey, string $key): mixed
+    {
+        $stateKey = $this->stateKeyFor($flow, $userKey);
+
+        return $this->session->get("{$stateKey}.{$key}");
+    }
+
+    public function setState(string $flow, string|int|null $userKey, string $key, mixed $value): void
+    {
+        $stateKey = $this->stateKeyFor($flow, $userKey);
+
+        $this->session->put("{$stateKey}.{$key}", $value);
+    }
+
+    public function hasState(string $flow, string|int|null $userKey, string $key): bool
+    {
+        $stateKey = $this->stateKeyFor($flow, $userKey);
+
+        return $this->session->has("{$stateKey}.{$key}");
+    }
+
+    public function forgetState(string $flow, string|int|null $userKey, string $key): void
+    {
+        $stateKey = $this->stateKeyFor($flow, $userKey);
+
+        $this->session->forget("{$stateKey}.{$key}");
+    }
+
+    public function clearState(string $flow, string|int|null $userKey, ?string $namespace = null): void
+    {
+        $stateKey = $this->stateKeyFor($flow, $userKey);
+
+        if ($namespace === null) {
+            $this->session->forget($stateKey);
+            return;
+        }
+
+        $allState = $this->getAllState($flow, $userKey);
+
+        foreach (array_keys($allState) as $key) {
+            if (str_starts_with($key, $namespace . '.')) {
+                $this->forgetState($flow, $userKey, $key);
+            }
+        }
+    }
+
+    public function getAllState(string $flow, string|int|null $userKey): array
+    {
+        $stateKey = $this->stateKeyFor($flow, $userKey);
+
+        return $this->session->get($stateKey, []);
+    }
+
     /**
      * Generate a session key for workflow state.
      */
@@ -81,5 +136,15 @@ class SessionWorkflowStateRepository implements WorkflowStateRepository
         $userPart = $userKey ?? 'guest';
 
         return "workflows.{$flow}.{$userPart}.{$suffix}";
+    }
+
+    /**
+     * Generate a session key for workflow state data.
+     */
+    protected function stateKeyFor(string $flow, string|int|null $userKey): string
+    {
+        $userPart = $userKey ?? 'guest';
+
+        return "workflows.{$flow}.{$userPart}.data";
     }
 }

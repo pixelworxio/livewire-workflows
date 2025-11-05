@@ -53,4 +53,34 @@ class NullStateRepository implements WorkflowStateRepository
     {
         // No-op
     }
+
+    public function getState(string $flow, string|int|null $userKey, string $key): mixed
+    {
+        return null;
+    }
+
+    public function setState(string $flow, string|int|null $userKey, string $key, mixed $value): void
+    {
+        // No-op
+    }
+
+    public function hasState(string $flow, string|int|null $userKey, string $key): bool
+    {
+        return false;
+    }
+
+    public function forgetState(string $flow, string|int|null $userKey, string $key): void
+    {
+        // No-op
+    }
+
+    public function clearState(string $flow, string|int|null $userKey, ?string $namespace = null): void
+    {
+        // No-op
+    }
+
+    public function getAllState(string $flow, string|int|null $userKey): array
+    {
+        return [];
+    }
 }

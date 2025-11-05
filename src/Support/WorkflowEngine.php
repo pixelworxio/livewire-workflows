@@ -10,6 +10,7 @@ use Pixelworxio\LivewireWorkflows\Contracts\GuardContract;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use Pixelworxio\LivewireWorkflows\Events\WorkflowAdvanced;
 use Pixelworxio\LivewireWorkflows\Events\WorkflowCompleted;
+use Pixelworxio\LivewireWorkflows\Events\WorkflowStateClearing;
 
 /**
  * Core workflow execution engine.
@@ -133,6 +134,17 @@ class WorkflowEngine
     public function complete(WorkflowDefinition $workflow, Request $request): void
     {
         $userKey = $this->getUserKey($request);
+
+        // Get state data before clearing
+        $stateData = $this->stateRepository->getAllState($workflow->flow, $userKey);
+
+        if (! empty($stateData)) {
+            event(new WorkflowStateClearing(
+                flow: $workflow->flow,
+                userKey: $userKey,
+                stateData: $stateData,
+            ));
+        }
 
         // Clear workflow state
         $this->stateRepository->clear($workflow->flow, $userKey);

@@ -131,6 +131,103 @@ class EloquentWorkflowStateRepository implements WorkflowStateRepository
         );
     }
 
+    public function getState(string $flow, string|int|null $userKey, string $key): mixed
+    {
+        $allState = $this->getAllState($flow, $userKey);
+
+        return $allState[$key] ?? null;
+    }
+
+    public function setState(string $flow, string|int|null $userKey, string $key, mixed $value): void
+    {
+        $allState = $this->getAllState($flow, $userKey);
+        $allState[$key] = $value;
+
+        $this->db->table($this->table)->updateOrInsert(
+            [
+                'workflow_name' => $flow,
+                'user_key' => (string) ($userKey ?? 'guest'),
+            ],
+            [
+                'data' => json_encode($allState),
+                'updated_at' => now(),
+            ]
+        );
+    }
+
+    public function hasState(string $flow, string|int|null $userKey, string $key): bool
+    {
+        $allState = $this->getAllState($flow, $userKey);
+
+        return array_key_exists($key, $allState);
+    }
+
+    public function forgetState(string $flow, string|int|null $userKey, string $key): void
+    {
+        $allState = $this->getAllState($flow, $userKey);
+        unset($allState[$key]);
+
+        $this->db->table($this->table)->updateOrInsert(
+            [
+                'workflow_name' => $flow,
+                'user_key' => (string) ($userKey ?? 'guest'),
+            ],
+            [
+                'data' => empty($allState) ? null : json_encode($allState),
+                'updated_at' => now(),
+            ]
+        );
+    }
+
+    public function clearState(string $flow, string|int|null $userKey, ?string $namespace = null): void
+    {
+        if ($namespace === null) {
+            $this->db->table($this->table)->updateOrInsert(
+                [
+                    'workflow_name' => $flow,
+                    'user_key' => (string) ($userKey ?? 'guest'),
+                ],
+                [
+                    'data' => null,
+                    'updated_at' => now(),
+                ]
+            );
+            return;
+        }
+
+        $allState = $this->getAllState($flow, $userKey);
+
+        foreach (array_keys($allState) as $key) {
+            if (str_starts_with($key, $namespace . '.')) {
+                unset($allState[$key]);
+            }
+        }
+
+        $this->db->table($this->table)->updateOrInsert(
+            [
+                'workflow_name' => $flow,
+                'user_key' => (string) ($userKey ?? 'guest'),
+            ],
+            [
+                'data' => empty($allState) ? null : json_encode($allState),
+                'updated_at' => now(),
+            ]
+        );
+    }
+
+    public function getAllState(string $flow, string|int|null $userKey): array
+    {
+        $record = $this->findRecord($flow, $userKey);
+
+        if (! $record || ! $record->data) {
+            return [];
+        }
+
+        $decoded = json_decode($record->data, true);
+
+        return is_array($decoded) ? $decoded : [];
+    }
+
     /**
      * Find a workflow state record.
      */

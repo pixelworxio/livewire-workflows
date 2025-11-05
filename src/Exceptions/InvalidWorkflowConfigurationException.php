@@ -9,7 +9,7 @@ use Exception;
 /**
  * Exception thrown when a workflow configuration is invalid.
  */
-class InvalidWorkflowConfigurationException extends Exception
+final class InvalidWorkflowConfigurationException extends Exception
 {
     //
 }

@@ -9,7 +9,7 @@ use Exception;
 /**
  * Exception thrown when a workflow cannot be found.
  */
-class WorkflowNotFoundException extends Exception
+final class WorkflowNotFoundException extends Exception
 {
     /**
      * Create a new exception for a missing workflow.
@@ -18,6 +18,6 @@ class WorkflowNotFoundException extends Exception
      */
     public static function forFlow(string $flow): static
     {
-        return new static("Workflow '{$flow}' not found. Did you register it in routes/workflows.php?");
+        return new self("Workflow '{$flow}' not found. Did you register it in routes/workflows.php?");
     }
 }

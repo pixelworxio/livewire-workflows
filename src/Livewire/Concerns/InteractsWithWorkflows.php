@@ -265,7 +265,7 @@ trait InteractsWithWorkflows
         $key = $property->getName();
 
         if ($attribute->namespace !== null) {
-            $key = $attribute->namespace . '.' . $key;
+            $key = $attribute->namespace.'.'.$key;
         }
 
         return $key;
@@ -286,6 +286,6 @@ trait InteractsWithWorkflows
             return $request->session()->getId();
         }
 
-        return 'guest-' . md5($request->ip() . ($request->userAgent() ?? 'unknown'));
+        return 'guest-'.md5($request->ip().($request->userAgent() ?? 'unknown'));
     }
 }

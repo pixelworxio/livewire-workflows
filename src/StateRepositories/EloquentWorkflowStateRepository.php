@@ -192,13 +192,14 @@ class EloquentWorkflowStateRepository implements WorkflowStateRepository
                     'updated_at' => now(),
                 ]
             );
+
             return;
         }
 
         $allState = $this->getAllState($flow, $userKey);
 
         foreach (array_keys($allState) as $key) {
-            if (str_starts_with($key, $namespace . '.')) {
+            if (str_starts_with($key, $namespace.'.')) {
                 unset($allState[$key]);
             }
         }

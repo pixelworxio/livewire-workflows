@@ -26,13 +26,9 @@ class WorkflowEntryController extends Controller
      *
      * Determines the workflow from the current route name and redirects
      * to the appropriate step or completion destination.
-     *
-     * @param  string  $flow  The workflow identifier
      */
-    public function __invoke(Request $request): RedirectResponse
+    public function __invoke(Request $request, string $flow): RedirectResponse
     {
-        $flow = $request->route('flow');
-
         return $this->resolver->redirect($flow, $request);
     }
 }

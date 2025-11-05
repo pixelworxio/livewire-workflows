@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Pixelworxio\LivewireWorkflows\StateRepositories;
 
 use Illuminate\Session\SessionManager;
-use Illuminate\Support\Arr;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 
 /**
@@ -109,13 +108,14 @@ class SessionWorkflowStateRepository implements WorkflowStateRepository
 
         if ($namespace === null) {
             $this->session->forget($stateKey);
+
             return;
         }
 
         $allState = $this->getAllState($flow, $userKey);
 
         foreach (array_keys($allState) as $key) {
-            if (str_starts_with($key, $namespace . '.')) {
+            if (str_starts_with($key, $namespace.'.')) {
                 $this->forgetState($flow, $userKey, $key);
             }
         }

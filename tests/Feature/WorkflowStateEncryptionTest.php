@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Crypt;
 use Livewire\Livewire;
-use Pixelworxio\LivewireWorkflows\Attributes\WorkflowState;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use Tests\Support\ComponentWithEncryption;
 

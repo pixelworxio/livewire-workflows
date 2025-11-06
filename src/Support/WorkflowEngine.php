@@ -217,7 +217,7 @@ class WorkflowEngine
 
         // Check if session is available
         if ($request->hasSession()) {
-            $session_workflow =  $request->session()->get('workflows.' . $workflow->flow);
+            $session_workflow = $request->session()->get('workflows.'.$workflow->flow);
 
             if ($session_workflow) {
                 return array_key_first($session_workflow);

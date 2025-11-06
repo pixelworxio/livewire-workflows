@@ -2,6 +2,12 @@
 
 All notable changes to `livewire-workflows` will be documented in this file.
 
+## 0.3a - 2025-11-06
+
+Reduce PHP requirement to 8.3 or greater.
+
+**Full Changelog**: https://github.com/pixelworxio/livewire-workflows/compare/0.2a...0.3a
+
 ## 0.2a - 2025-11-06
 
 ### What's Changed

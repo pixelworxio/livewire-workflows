@@ -1,4 +1,4 @@
-![Livewire Workflows Banner](resources/livewire-workflows-banner.png)
+![Livewire Workflows Banner](https://raw.githubusercontent.com/pixelworxio/livewire-workflows/main/resources/livewire-workflows-banner.png)
 
 <p align="center">
   <a href="https://github.com/pixelworxio/livewire-workflows/actions/workflows/run-tests.yml"><img src="https://img.shields.io/github/actions/workflow/status/pixelworxio/livewire-workflows/run-tests.yml?branch=main&label=tests&style=flat-square" alt="GitHub Tests Action Status"></a>

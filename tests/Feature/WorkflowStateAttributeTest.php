@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
-use Pixelworxio\LivewireWorkflows\Attributes\WorkflowState;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use Pixelworxio\LivewireWorkflows\Facades\Workflow;
 use Tests\Support\TestComponentWithState;
@@ -18,9 +17,9 @@ beforeEach(function () {
         ->finishesAt('dashboard')
         ->historyMode('stack')
         ->step('verify-email')
-            ->goTo(Tests\Support\TestComponentWithState::class)
-            ->unlessPasses(Tests\Support\TestStepOneGuard::class)
-            ->order(10);
+        ->goTo(Tests\Support\TestComponentWithState::class)
+        ->unlessPasses(Tests\Support\TestStepOneGuard::class)
+        ->order(10);
 
     $builder->build();
 

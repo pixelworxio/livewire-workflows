@@ -4,7 +4,6 @@ namespace Tests\Support;
 
 use Livewire\Component;
 use Pixelworxio\LivewireWorkflows\Attributes\WorkflowState;
-use Pixelworxio\LivewireWorkflows\Attributes\WorkflowStep;
 use Pixelworxio\LivewireWorkflows\Livewire\Concerns\InteractsWithWorkflows;
 
 class TestComponentWithState extends Component

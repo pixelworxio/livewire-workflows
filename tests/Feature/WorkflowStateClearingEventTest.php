@@ -18,9 +18,9 @@ beforeEach(function () {
         ->entersAt(name: 'onboarding.start', path: '/onboarding')
         ->finishesAt('dashboard')
         ->step('step-one')
-            ->goTo(Tests\Support\TestStepOneComponent::class)
-            ->unlessPasses(Tests\Support\TestStepOneGuard::class)
-            ->order(10);
+        ->goTo(Tests\Support\TestStepOneComponent::class)
+        ->unlessPasses(Tests\Support\TestStepOneGuard::class)
+        ->order(10);
 
     $builder->build();
 
@@ -36,7 +36,7 @@ test('fires WorkflowStateClearing event when workflow completes with state data'
     $repository = app(WorkflowStateRepository::class);
     $sessionId = session()->getId();
 
-    dump('sessionId: ' . $sessionId); // TEMPORARY
+    dump('sessionId: '.$sessionId); // TEMPORARY
 
     // Set some state data
     $repository->setState('onboarding', $sessionId, 'email', 'test@example.com');

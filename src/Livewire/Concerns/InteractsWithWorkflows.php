@@ -65,6 +65,7 @@ trait InteractsWithWorkflows
     {
         $this->syncWorkflowState();
         $workflow = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class)->get($flow);
+
         return $this->redirect(route($workflow->entryRouteName), navigate: true);
     }
 

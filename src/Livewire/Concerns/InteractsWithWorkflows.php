@@ -61,25 +61,25 @@ trait InteractsWithWorkflows
         return $this->workflowName;
     }
 
-    public function continue(string $flow): Redirector
+    public function continue(string $flow): void
     {
         $this->syncWorkflowState();
         $workflow = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class)->get($flow);
 
-        return $this->redirect(route($workflow->entryRouteName), navigate: true);
+        $this->redirect(route($workflow->entryRouteName), navigate: true);
     }
 
-    public function back(string $flow, string $currentKey): ?Redirector
+    public function back(string $flow, string $currentKey): void
     {
         $this->syncWorkflowState();
         $resolver = app(\Pixelworxio\LivewireWorkflows\Support\WorkflowResolver::class);
         $previousRoute = $resolver->previousRouteNameFor($flow, $currentKey, request());
 
         if ($previousRoute === null) {
-            return null;
+            return;
         }
 
-        return $this->redirect(route($previousRoute), navigate: true);
+        $this->redirect(route($previousRoute), navigate: true);
     }
 
     /**

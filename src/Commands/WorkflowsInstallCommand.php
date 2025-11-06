@@ -32,7 +32,12 @@ class WorkflowsInstallCommand extends Command
         $workflowsPath = base_path('routes/workflows.php');
 
         if (! File::exists($workflowsPath)) {
-            $stub = File::get(__DIR__.'/../../stubs/workflows.php.stub');
+            $stubPath = dirname(__DIR__, 2).'/stubs/workflows.php.stub';
+            if (! is_file($stubPath)) {
+                 throw new \RuntimeException('Missing stub: '.$stubPath);
+            }
+            $stub = File::get($stubPath);
+
             File::put($workflowsPath, $stub);
             $this->info('Created routes/workflows.php');
         } else {

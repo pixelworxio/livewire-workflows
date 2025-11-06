@@ -2,8 +2,6 @@
 
 <p align="center">
   <a href="https://github.com/pixelworxio/livewire-workflows/actions/workflows/run-tests.yml"><img src="https://img.shields.io/github/actions/workflow/status/pixelworxio/livewire-workflows/run-tests.yml?branch=main&label=tests&style=flat-square" alt="GitHub Tests Action Status"></a>
-  <a href="https://packagist.org/packages/pixelworxio/livewire-workflows"><img src="https://img.shields.io/packagist/dt/pixelworxio/livewire-workflows.svg?style=flat-square" alt="Total Downloads"></a>
-  <a href="https://packagist.org/packages/pixelworxio/livewire-workflows"><img src="https://img.shields.io/packagist/l/pixelworxio/livewire-workflows.svg?style=flat-square" alt="License"></a>
   <a href="https://github.com/pixelworxio/livewire-workflows"><img src="https://img.shields.io/github/stars/pixelworxio/livewire-workflows?style=flat-square" alt="GitHub Stars"></a>
 </p>
 

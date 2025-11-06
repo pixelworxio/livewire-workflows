@@ -1,6 +1,6 @@
-# Livewire Workflows
+# Livewire Workflows (ALPHA)
 
-A production-ready Laravel 11+ package for building pipeline-driven, multi-step workflows with Livewire v3/v4. Define complex onboarding flows, checkout processes, or surveys using a readable DSL with automatic route registration.
+A Laravel 11+ package for building pipeline-driven, multi-step workflows with Livewire v3/v4. Define complex onboarding flows, checkout processes, or surveys using a readable DSL with automatic route registration.
 
 ## Features
 

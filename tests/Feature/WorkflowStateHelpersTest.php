@@ -85,7 +85,7 @@ test('clearWorkflowState with namespace only clears namespaced keys', function (
     $repository->setState('test-flow', $userKey, 'profile.age', 30);
     $repository->setState('test-flow', $userKey, 'settings.theme', 'dark');
 
-    $component->call('clearAll','profile');
+    $component->call('clearAll', 'profile');
 
     $allState = $repository->getAllState('test-flow', $userKey);
 

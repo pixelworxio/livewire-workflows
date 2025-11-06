@@ -1,6 +1,6 @@
 {
     "name": "pixelworxio/livewire-workflows",
-    "description": "Pipeline-driven workflow router for Laravel Livewire with auto-registered routes and readable DSL",
+    "description": "Build multi-step workflows in Laravel / Livewire with zero boilerplate",
     "keywords": ["laravel", "livewire", "workflow", "multistep", "forms"],
     "type": "library",
     "homepage": "https://github.com/pixelworxio/livewire-workflows",

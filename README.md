@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/livewire-workflows-banner.png" alt="Livewire Workflows Banner">
+  <img src="resources/livewire-workflows-banner.png" alt="Livewire Workflows Banner">
 </p>
 
 <p align="center">

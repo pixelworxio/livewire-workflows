@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Pixelworxio\LivewireWorkflows\Livewire\Concerns;
 
 use Illuminate\Support\Facades\Crypt;
-use Livewire\Features\SupportRedirects\Redirector;
 use Pixelworxio\LivewireWorkflows\Attributes\WorkflowState;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use ReflectionClass;

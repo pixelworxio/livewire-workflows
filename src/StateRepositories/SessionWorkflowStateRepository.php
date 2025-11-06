@@ -106,18 +106,31 @@ class SessionWorkflowStateRepository implements WorkflowStateRepository
     {
         $stateKey = $this->stateKeyFor($flow, $userKey);
 
-        if ($namespace === null) {
+        if (! $namespace) {
             $this->session->forget($stateKey);
 
             return;
         }
 
         $allState = $this->getAllState($flow, $userKey);
+        $keysToRemove = [];
 
         foreach (array_keys($allState) as $key) {
-            if (str_starts_with($key, $namespace.'.')) {
-                $this->forgetState($flow, $userKey, $key);
+            if (str_starts_with($key, $namespace)) {
+                $keysToRemove[] = $key;
             }
+        }
+
+        // Remove the keys from the state array
+        foreach ($keysToRemove as $key) {
+            unset($allState[$key]);
+        }
+
+        // Save the modified state back
+        if (empty($allState)) {
+            $this->session->forget($stateKey);
+        } else {
+            $this->session->put($stateKey, $allState);
         }
     }
 

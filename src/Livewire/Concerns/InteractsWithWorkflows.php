@@ -207,6 +207,7 @@ trait InteractsWithWorkflows
 
         $repository = app(WorkflowStateRepository::class);
         $userKey = $this->getUserKey();
+
         $repository->clearState($this->workflowName, $userKey, $namespace);
     }
 

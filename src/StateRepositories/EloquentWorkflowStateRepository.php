@@ -182,38 +182,37 @@ class EloquentWorkflowStateRepository implements WorkflowStateRepository
     public function clearState(string $flow, string|int|null $userKey, ?string $namespace = null): void
     {
         if ($namespace === null) {
-            $this->db->table($this->table)->updateOrInsert(
-                [
-                    'workflow_name' => $flow,
-                    'user_key' => (string) ($userKey ?? 'guest'),
-                ],
-                [
+            $this->db->table($this->table)
+                ->where('workflow_name', $flow)
+                ->where('user_key', (string) ($userKey ?? 'guest'))
+                ->update([
                     'data' => null,
                     'updated_at' => now(),
-                ]
-            );
+                ]);
 
             return;
         }
 
         $allState = $this->getAllState($flow, $userKey);
+        $keysToRemove = [];
 
         foreach (array_keys($allState) as $key) {
             if (str_starts_with($key, $namespace.'.')) {
-                unset($allState[$key]);
+                $keysToRemove[] = $key;
             }
         }
 
-        $this->db->table($this->table)->updateOrInsert(
-            [
-                'workflow_name' => $flow,
-                'user_key' => (string) ($userKey ?? 'guest'),
-            ],
-            [
+        foreach ($keysToRemove as $key) {
+            unset($allState[$key]);
+        }
+
+        $this->db->table($this->table)
+            ->where('workflow_name', $flow)
+            ->where('user_key', (string) ($userKey ?? 'guest'))
+            ->update([
                 'data' => empty($allState) ? null : json_encode($allState),
                 'updated_at' => now(),
-            ]
-        );
+            ]);
     }
 
     public function getAllState(string $flow, string|int|null $userKey): array

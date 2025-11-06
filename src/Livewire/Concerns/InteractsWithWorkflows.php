@@ -11,116 +11,68 @@ use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use ReflectionClass;
 use ReflectionProperty;
 
-/**
- * Livewire trait for workflow navigation and state management.
- *
- * Provides convenient methods for Livewire components:
- * - continue(): Advance to next step
- * - back(): Return to previous step
- * - State management: Automatic persistence of properties marked with #[WorkflowState]
- */
 trait InteractsWithWorkflows
 {
-    /**
-     * The workflow name for state management.
-     */
     protected ?string $workflowName = null;
 
-    /**
-     * Mount hook to auto-detect workflow name from route or use explicit assignment.
-     */
-    public function mountInteractsWithWorkflows(): void
+    public function bootInteractsWithWorkflows(): void
     {
-        // If workflow name not already set, try to detect from current route
         if ($this->workflowName === null) {
             $routeName = request()->route()?->getName();
 
             if ($routeName && str_contains($routeName, '.')) {
-                // Extract flow from route name (e.g., 'onboarding.step-one' -> 'onboarding')
                 $parts = explode('.', $routeName);
                 if (count($parts) >= 2) {
                     $possibleFlow = $parts[0];
 
-                    // Verify this flow exists in the registrar
                     try {
                         $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
                         if ($registrar->has($possibleFlow)) {
                             $this->workflowName = $possibleFlow;
                         }
                     } catch (\Throwable $e) {
-                        // Registrar not available (likely in tests), skip auto-detection
+                        // Skip
                     }
                 }
             }
         }
     }
 
-    /**
-     * Boot the trait.
-     */
-    public function bootInteractsWithWorkflows(): void
+    public function mountInteractsWithWorkflows(): void
     {
         if ($this->workflowName !== null) {
             $this->hydrateWorkflowState();
         }
     }
 
-    /**
-     * Dehydrate hook to sync state.
-     */
     public function dehydrateInteractsWithWorkflows(): void
     {
-        if ($this->workflowName !== null) {
-            $this->syncWorkflowState();
-        }
+        $this->syncWorkflowState();
     }
 
-    /**
-     * Set workflow name (useful for testing or manual assignment)
-     */
     public function setWorkflowName(string $workflowName): void
     {
         $this->workflowName = $workflowName;
-
-        // Hydrate state immediately after setting workflow name
         $this->hydrateWorkflowState();
     }
 
-    /**
-     * Get workflow name
-     */
     public function getWorkflowName(): ?string
     {
         return $this->workflowName;
     }
 
-    /**
-     * Continue to the next workflow step.
-     *
-     * Redirects to the workflow entry route which will evaluate guards
-     * and redirect to the appropriate next step or finish route.
-     *
-     * @param  string  $flow  The workflow identifier
-     */
     public function continue(string $flow): Redirector
     {
+        $this->syncWorkflowState();
         $workflow = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class)->get($flow);
-
         return $this->redirect(route($workflow->entryRouteName), navigate: true);
     }
 
-    /**
-     * Go back to the previous workflow step.
-     *
-     * @param  string  $flow  The workflow identifier
-     * @param  string  $currentKey  The current step key
-     */
     public function back(string $flow, string $currentKey): ?Redirector
     {
+        $this->syncWorkflowState();
         $resolver = app(\Pixelworxio\LivewireWorkflows\Support\WorkflowResolver::class);
-        $request = request();
-
-        $previousRoute = $resolver->previousRouteNameFor($flow, $currentKey, $request);
+        $previousRoute = $resolver->previousRouteNameFor($flow, $currentKey, request());
 
         if ($previousRoute === null) {
             return null;
@@ -130,8 +82,14 @@ trait InteractsWithWorkflows
     }
 
     /**
-     * Hydrate workflow state from repository.
+     * Manually sync current state to repository
+     * Call this before navigation or when you want to persist state
      */
+    public function syncState(): void
+    {
+        $this->syncWorkflowState();
+    }
+
     protected function hydrateWorkflowState(): void
     {
         if ($this->workflowName === null) {
@@ -140,10 +98,9 @@ trait InteractsWithWorkflows
 
         $repository = app(WorkflowStateRepository::class);
         $userKey = $this->getUserKey();
-
         $reflection = new ReflectionClass($this);
 
-        foreach ($reflection->getProperties() as $property) {
+        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
             $attributes = $property->getAttributes(WorkflowState::class);
 
             if (empty($attributes)) {
@@ -160,27 +117,22 @@ trait InteractsWithWorkflows
                     $value = Crypt::decrypt($value);
                 }
 
-                $property->setAccessible(true);
-                $property->setValue($this, $value);
+                $this->{$property->getName()} = $value;
             }
         }
     }
 
-    /**
-     * Sync workflow state to repository.
-     */
     protected function syncWorkflowState(): void
     {
-        if ($this->workflowName === null) {
+        if (! $this->workflowName) {
             return;
         }
 
         $repository = app(WorkflowStateRepository::class);
         $userKey = $this->getUserKey();
-
         $reflection = new ReflectionClass($this);
 
-        foreach ($reflection->getProperties() as $property) {
+        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
             $attributes = $property->getAttributes(WorkflowState::class);
 
             if (empty($attributes)) {
@@ -189,9 +141,7 @@ trait InteractsWithWorkflows
 
             $attribute = $attributes[0]->newInstance();
             $stateKey = $this->getStateKey($property, $attribute);
-
-            $property->setAccessible(true);
-            $value = $property->getValue($this);
+            $value = $this->{$property->getName()};
 
             if ($attribute->encrypt && $value !== null) {
                 $value = Crypt::encrypt($value);
@@ -201,9 +151,6 @@ trait InteractsWithWorkflows
         }
     }
 
-    /**
-     * Get a workflow state value.
-     */
     protected function getWorkflowState(string $key, mixed $default = null): mixed
     {
         if ($this->workflowName === null) {
@@ -212,15 +159,11 @@ trait InteractsWithWorkflows
 
         $repository = app(WorkflowStateRepository::class);
         $userKey = $this->getUserKey();
-
         $value = $repository->getState($this->workflowName, $userKey, $key);
 
         return $value ?? $default;
     }
 
-    /**
-     * Set a workflow state value.
-     */
     protected function putWorkflowState(string $key, mixed $value): void
     {
         if ($this->workflowName === null) {
@@ -229,13 +172,9 @@ trait InteractsWithWorkflows
 
         $repository = app(WorkflowStateRepository::class);
         $userKey = $this->getUserKey();
-
         $repository->setState($this->workflowName, $userKey, $key, $value);
     }
 
-    /**
-     * Check if a workflow state key exists.
-     */
     protected function hasWorkflowState(string $key): bool
     {
         if ($this->workflowName === null) {
@@ -248,9 +187,6 @@ trait InteractsWithWorkflows
         return $repository->hasState($this->workflowName, $userKey, $key);
     }
 
-    /**
-     * Remove a workflow state key.
-     */
     protected function forgetWorkflowState(string $key): void
     {
         if ($this->workflowName === null) {
@@ -259,13 +195,9 @@ trait InteractsWithWorkflows
 
         $repository = app(WorkflowStateRepository::class);
         $userKey = $this->getUserKey();
-
         $repository->forgetState($this->workflowName, $userKey, $key);
     }
 
-    /**
-     * Clear workflow state.
-     */
     protected function clearWorkflowState(?string $namespace = null): void
     {
         if ($this->workflowName === null) {
@@ -274,13 +206,9 @@ trait InteractsWithWorkflows
 
         $repository = app(WorkflowStateRepository::class);
         $userKey = $this->getUserKey();
-
         $repository->clearState($this->workflowName, $userKey, $namespace);
     }
 
-    /**
-     * Get all workflow state.
-     */
     protected function allWorkflowState(): array
     {
         if ($this->workflowName === null) {
@@ -293,9 +221,6 @@ trait InteractsWithWorkflows
         return $repository->getAllState($this->workflowName, $userKey);
     }
 
-    /**
-     * Get the state key for a property.
-     */
     protected function getStateKey(ReflectionProperty $property, WorkflowState $attribute): string
     {
         $key = $property->getName();
@@ -307,9 +232,6 @@ trait InteractsWithWorkflows
         return $key;
     }
 
-    /**
-     * Get the user key for state persistence.
-     */
     protected function getUserKey(): string|int
     {
         $request = request();

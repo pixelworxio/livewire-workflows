@@ -11,43 +11,6 @@ use Pixelworxio\LivewireWorkflows\Facades\Workflow;
 use Tests\Support\TestComponentWithState;
 
 beforeEach(function () {
-    // Register a test component with WorkflowState attributes
-    if (! class_exists(TestComponentWithState::class)) {
-        eval(<<<'PHP'
-namespace Tests\Support;
-
-use Livewire\Component;
-use Pixelworxio\LivewireWorkflows\Livewire\Concerns\InteractsWithWorkflows;
-use Pixelworxio\LivewireWorkflows\Attributes\WorkflowState;
-
-class TestComponentWithState extends Component
-{
-    use InteractsWithWorkflows;
-
-    #[WorkflowState]
-    public ?string $email = null;
-
-    #[WorkflowState(encrypt: true)]
-    public ?string $password = null;
-
-    #[WorkflowState(namespace: 'profile')]
-    public ?string $name = null;
-
-    public function mount()
-    {
-        // Explicitly set workflow name for testing
-        $this->setWorkflowName('test-flow');
-    }
-
-    public function render()
-    {
-        return '<div>Test Component</div>';
-    }
-}
-PHP
-        );
-    }
-
     app(Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class)->clear();
 
     $builder = Workflow::flow('test-flow')
@@ -55,9 +18,9 @@ PHP
         ->finishesAt('dashboard')
         ->historyMode('stack')
         ->step('verify-email')
-        ->goTo(Tests\Support\TestComponentWithState::class)
-        ->unlessPasses(Tests\Support\TestStepOneGuard::class)
-        ->order(10);
+            ->goTo(Tests\Support\TestComponentWithState::class)
+            ->unlessPasses(Tests\Support\TestStepOneGuard::class)
+            ->order(10);
 
     $builder->build();
 
@@ -71,9 +34,11 @@ PHP
 
 test('hydrates state from repository on mount', function () {
     $repository = app(WorkflowStateRepository::class);
-    $sessionId = session()->getId();
 
-    $repository->setState('test-flow', $sessionId, 'email', 'test@example.com');
+    // Use the same userKey that the component will use
+    $userKey = 'guest-'.md5(request()->ip().(request()->userAgent() ?? 'unknown'));
+
+    $repository->setState('test-flow', $userKey, 'email', 'test@example.com');
 
     $component = Livewire::test(TestComponentWithState::class);
 
@@ -82,24 +47,24 @@ test('hydrates state from repository on mount', function () {
 
 test('syncs state to repository on dehydrate', function () {
     $repository = app(WorkflowStateRepository::class);
-    $sessionId = session()->getId();
+    $userKey = 'guest-'.md5(request()->ip().(request()->userAgent() ?? 'unknown'));
 
     $component = Livewire::test(TestComponentWithState::class)
         ->set('email', 'new@example.com');
 
-    $storedValue = $repository->getState('test-flow', $sessionId, 'email');
+    $storedValue = $repository->getState('test-flow', $userKey, 'email');
 
     expect($storedValue)->toBe('new@example.com');
 });
 
 test('encrypts state when encrypt flag is true', function () {
     $repository = app(WorkflowStateRepository::class);
-    $sessionId = session()->getId();
+    $userKey = 'guest-'.md5(request()->ip().(request()->userAgent() ?? 'unknown'));
 
     Livewire::test(TestComponentWithState::class)
         ->set('password', 'secret123');
 
-    $storedValue = $repository->getState('test-flow', $sessionId, 'password');
+    $storedValue = $repository->getState('test-flow', $userKey, 'password');
 
     expect($storedValue)->not->toBe('secret123');
 
@@ -109,10 +74,10 @@ test('encrypts state when encrypt flag is true', function () {
 
 test('decrypts encrypted state on hydration', function () {
     $repository = app(WorkflowStateRepository::class);
-    $sessionId = session()->getId();
+    $userKey = 'guest-'.md5(request()->ip().(request()->userAgent() ?? 'unknown'));
 
     $encrypted = Crypt::encrypt('secret123');
-    $repository->setState('test-flow', $sessionId, 'password', $encrypted);
+    $repository->setState('test-flow', $userKey, 'password', $encrypted);
 
     $component = Livewire::test(TestComponentWithState::class);
 
@@ -121,21 +86,22 @@ test('decrypts encrypted state on hydration', function () {
 
 test('namespaces state keys correctly', function () {
     $repository = app(WorkflowStateRepository::class);
-    $sessionId = session()->getId();
+    $userKey = 'guest-'.md5(request()->ip().(request()->userAgent() ?? 'unknown'));
 
     Livewire::test(TestComponentWithState::class)
-        ->set('name', 'John Doe');
+        ->set('name', 'John Doe')
+        ->call('syncState');
 
-    $storedValue = $repository->getState('test-flow', $sessionId, 'profile.name');
+    $storedValue = $repository->getState('test-flow', $userKey, 'profile.name');
 
     expect($storedValue)->toBe('John Doe');
 });
 
 test('hydrates namespaced state correctly', function () {
     $repository = app(WorkflowStateRepository::class);
-    $sessionId = session()->getId();
+    $userKey = 'guest-'.md5(request()->ip().(request()->userAgent() ?? 'unknown'));
 
-    $repository->setState('test-flow', $sessionId, 'profile.name', 'Jane Smith');
+    $repository->setState('test-flow', $userKey, 'profile.name', 'Jane Smith');
 
     $component = Livewire::test(TestComponentWithState::class);
 

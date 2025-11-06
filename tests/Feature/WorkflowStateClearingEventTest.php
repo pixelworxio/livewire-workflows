@@ -14,21 +14,29 @@ beforeEach(function () {
 
     app(Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class)->clear();
 
-    Workflow::flow('onboarding')
+    $builder = Workflow::flow('onboarding')
         ->entersAt(name: 'onboarding.start', path: '/onboarding')
         ->finishesAt('dashboard')
         ->step('step-one')
-        ->goTo(Tests\Support\TestStepOneComponent::class)
-        ->unlessPasses(Tests\Support\TestStepOneGuard::class)
-        ->order(10);
+            ->goTo(Tests\Support\TestStepOneComponent::class)
+            ->unlessPasses(Tests\Support\TestStepOneGuard::class)
+            ->order(10);
+
+    $builder->build();
+
+    Route::get('/dashboard', fn () => 'Dashboard')->name('dashboard');
 
     app(Pixelworxio\LivewireWorkflows\Support\RouteRegistrar::class)->register();
-    Route::get('/dashboard', fn () => 'Dashboard')->name('dashboard');
+
+    // Refresh route collection
+    app('router')->getRoutes()->refreshNameLookups();
 });
 
 test('fires WorkflowStateClearing event when workflow completes with state data', function () {
     $repository = app(WorkflowStateRepository::class);
     $sessionId = session()->getId();
+
+    dump('sessionId: ' . $sessionId); // TEMPORARY
 
     // Set some state data
     $repository->setState('onboarding', $sessionId, 'email', 'test@example.com');
@@ -38,6 +46,8 @@ test('fires WorkflowStateClearing event when workflow completes with state data'
     Tests\Support\TestStepOneGuard::$shouldPass = true;
 
     $this->get('/onboarding');
+
+    dd($repository);
 
     Event::assertDispatched(WorkflowStateClearing::class, function ($event) use ($sessionId) {
         return $event->flow === 'onboarding'

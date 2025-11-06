@@ -23,6 +23,7 @@ class TestComponentWithEncryptionHelper extends Component
     public function loadEncrypted()
     {
         $encrypted = $this->getWorkflowState('manual_encrypted');
+
         return $encrypted ? \Illuminate\Support\Facades\Crypt::decrypt($encrypted) : null;
     }
 

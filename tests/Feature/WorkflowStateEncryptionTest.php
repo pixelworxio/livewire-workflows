@@ -7,9 +7,7 @@ use Livewire\Livewire;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use Tests\Support\TestComponentWithEncryption;
 
-beforeEach(function () {
-
-});
+beforeEach(function () {});
 
 test('encrypted property is stored encrypted', function () {
     $repository = app(WorkflowStateRepository::class);

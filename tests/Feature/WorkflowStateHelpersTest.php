@@ -6,11 +6,9 @@ use Livewire\Livewire;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use Tests\Support\TestComponentWithHelpers;
 
-beforeEach(function () {
+beforeEach(function () {});
 
-});
-
-//test('putWorkflowState stores data', function () {
+// test('putWorkflowState stores data', function () {
 //    $component = Livewire::test(TestComponentWithHelpers::class);
 //
 //    $component->call('saveData');
@@ -21,9 +19,9 @@ beforeEach(function () {
 //    $storedValue = $repository->getState('test-flow', $sessionId, 'user_data');
 //
 //    expect($storedValue)->toBe(['name' => 'John', 'age' => 30]);
-//});
+// });
 
-//test('getWorkflowState retrieves data', function () {
+// test('getWorkflowState retrieves data', function () {
 //    $repository = app(WorkflowStateRepository::class);
 //    $sessionId = session()->getId();
 //
@@ -34,9 +32,9 @@ beforeEach(function () {
 //    $data = $component->call('loadData')->json();
 //
 //    expect($data)->toBe(['name' => 'Jane', 'age' => 25]);
-//});
+// });
 
-//test('hasWorkflowState checks existence', function () {
+// test('hasWorkflowState checks existence', function () {
 //    $repository = app(WorkflowStateRepository::class);
 //    $sessionId = session()->getId();
 //
@@ -47,9 +45,9 @@ beforeEach(function () {
 //    $repository->setState('test-flow', $sessionId, 'user_data', ['test' => 'value']);
 //
 //    expect($component->call('checkData')->json())->toBeTrue();
-//});
+// });
 
-//test('forgetWorkflowState removes data', function () {
+// test('forgetWorkflowState removes data', function () {
 //    $repository = app(WorkflowStateRepository::class);
 //    $sessionId = session()->getId();
 //
@@ -62,9 +60,9 @@ beforeEach(function () {
 //    $component->call('removeData');
 //
 //    expect($component->call('checkData')->json())->toBeFalse();
-//});
+// });
 
-//test('clearWorkflowState removes all data', function () {
+// test('clearWorkflowState removes all data', function () {
 //    $repository = app(WorkflowStateRepository::class);
 //    $sessionId = session()->getId();
 //
@@ -76,9 +74,9 @@ beforeEach(function () {
 //    $component->call('clearAll');
 //
 //    expect($repository->getAllState('test-flow', $sessionId))->toBeEmpty();
-//});
+// });
 
-//test('clearWorkflowState with namespace only clears namespaced keys', function () {
+// test('clearWorkflowState with namespace only clears namespaced keys', function () {
 //    $repository = app(WorkflowStateRepository::class);
 //    $sessionId = session()->getId();
 //
@@ -95,9 +93,9 @@ beforeEach(function () {
 //    expect($allState)->not->toHaveKey('profile.name')
 //        ->and($allState)->not->toHaveKey('profile.age')
 //        ->and($allState)->toHaveKey('settings.theme');
-//});
+// });
 
-//test('allWorkflowState returns all data', function () {
+// test('allWorkflowState returns all data', function () {
 //    $repository = app(WorkflowStateRepository::class);
 //    $sessionId = session()->getId();
 //
@@ -109,4 +107,4 @@ beforeEach(function () {
 //    $allData = $component->call('getAllData')->json();
 //
 //    expect($allData)->toBe(['key1' => 'value1', 'key2' => 'value2']);
-//});
+// });

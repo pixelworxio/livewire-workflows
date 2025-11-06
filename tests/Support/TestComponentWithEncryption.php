@@ -3,8 +3,8 @@
 namespace Tests\Support;
 
 use Livewire\Component;
-use Pixelworxio\LivewireWorkflows\Livewire\Concerns\InteractsWithWorkflows;
 use Pixelworxio\LivewireWorkflows\Attributes\WorkflowState;
+use Pixelworxio\LivewireWorkflows\Livewire\Concerns\InteractsWithWorkflows;
 
 class TestComponentWithEncryption extends Component
 {

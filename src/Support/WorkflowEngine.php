@@ -60,7 +60,7 @@ class WorkflowEngine
      */
     public function previousStep(WorkflowDefinition $workflow, string $currentKey, Request $request): ?string
     {
-        $userKey = $this->getUserKey($request);
+        $userKey = $this->getUserKey($request, $workflow);
 
         // If using history stack, pop from history
         if ($workflow->hasHistory()) {
@@ -88,7 +88,7 @@ class WorkflowEngine
      */
     public function advanceTo(WorkflowDefinition $workflow, string $toKey, Request $request): void
     {
-        $userKey = $this->getUserKey($request);
+        $userKey = $this->getUserKey($request, $workflow);
         $fromKey = $this->stateRepository->getCurrentStep($workflow->flow, $userKey);
 
         // Call onExit for previous step's guard
@@ -137,7 +137,6 @@ class WorkflowEngine
 
         // Get state data before clearing
         $stateData = $this->stateRepository->getAllState($workflow->flow, $userKey);
-        $sessionData = session()->get("workflows");
 
         if (! empty($stateData)) {
             event(new WorkflowStateClearing(
@@ -191,7 +190,7 @@ class WorkflowEngine
             }
         }
 
-        $userKey = $this->getUserKey($request);
+        $userKey = $this->getUserKey($request, $workflow);
         $currentStepKey = $this->stateRepository->getCurrentStep($workflow->flow, $userKey);
 
         return [
@@ -220,7 +219,9 @@ class WorkflowEngine
         if ($request->hasSession()) {
             $session_workflow =  $request->session()->get('workflows.' . $workflow->flow);
 
-            return array_key_first($session_workflow);
+            if ($session_workflow) {
+                return array_key_first($session_workflow);
+            }
         }
 
         // Fallback for tests or requests without sessions

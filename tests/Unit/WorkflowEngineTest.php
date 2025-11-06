@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use Pixelworxio\LivewireWorkflows\Facades\Workflow;
@@ -11,24 +12,33 @@ use Pixelworxio\LivewireWorkflows\Support\WorkflowEngine;
 beforeEach(function () {
     app(Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class)->clear();
 
-    Workflow::flow('test-flow')
+    $builder = Workflow::flow('test-flow')
         ->entersAt(name: 'test.start', path: '/test-flow')
         ->finishesAt('dashboard')
         ->historyMode('stack')
         ->step('step-one')
-        ->goTo(Tests\Support\TestStepOneComponent::class)
-        ->unlessPasses(Tests\Support\TestStepOneGuard::class)
-        ->order(10)
+            ->goTo(Tests\Support\TestStepOneComponent::class)
+            ->unlessPasses(Tests\Support\TestStepOneGuard::class)
+            ->order(10)
         ->step('step-two')
-        ->goTo(Tests\Support\TestStepTwoComponent::class)
-        ->unlessPasses(Tests\Support\TestStepTwoGuard::class)
-        ->order(20);
+            ->goTo(Tests\Support\TestStepTwoComponent::class)
+            ->unlessPasses(Tests\Support\TestStepTwoGuard::class)
+            ->order(20);
+
+    $builder->build();
+
+    Route::get('/dashboard', fn () => 'Dashboard')->name('dashboard');
+
+    app(Pixelworxio\LivewireWorkflows\Support\RouteRegistrar::class)->register();
+
+    // Refresh route collection
+    app('router')->getRoutes()->refreshNameLookups();
 
     $this->workflow = app(Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class)->get('test-flow');
     $this->engine = app(WorkflowEngine::class);
 
     // Properly initialize request with session
-    $this->request = Request::create('/test');
+    $this->request = Request::create('/dashboard');
 
     // Start a session and attach it to the request
     $session = app('session')->driver();
@@ -80,14 +90,15 @@ test('calculates progress correctly', function () {
 
 test('tracks history when advancing steps', function () {
     $repository = app(WorkflowStateRepository::class);
-    $sessionId = $this->request->session()->getId();
 
-    $this->engine->advanceTo($this->workflow, 'step-one', $this->request);
+    $this->engine->advanceTo($this->workflow, 'step-one', request());
+
+    $sessionId = array_key_first(session()->get('workflows.'.$this->workflow->flow));
     $history = $repository->getHistory('test-flow', $sessionId);
 
     expect($history)->toContain('step-one');
 
-    $this->engine->advanceTo($this->workflow, 'step-two', $this->request);
+    $this->engine->advanceTo($this->workflow, 'step-two', request());
     $history = $repository->getHistory('test-flow', $sessionId);
 
     expect($history)->toContain('step-one')

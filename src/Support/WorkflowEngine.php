@@ -133,10 +133,11 @@ class WorkflowEngine
      */
     public function complete(WorkflowDefinition $workflow, Request $request): void
     {
-        $userKey = $this->getUserKey($request);
+        $userKey = $this->getUserKey($request, $workflow);
 
         // Get state data before clearing
         $stateData = $this->stateRepository->getAllState($workflow->flow, $userKey);
+        $sessionData = session()->get("workflows");
 
         if (! empty($stateData)) {
             event(new WorkflowStateClearing(
@@ -209,7 +210,7 @@ class WorkflowEngine
      *
      * Returns the authenticated user ID, session ID, or a guest identifier.
      */
-    protected function getUserKey(Request $request): string|int
+    protected function getUserKey(Request $request, $workflow): string|int
     {
         if ($request->user()) {
             return $request->user()->getAuthIdentifier();
@@ -217,7 +218,9 @@ class WorkflowEngine
 
         // Check if session is available
         if ($request->hasSession()) {
-            return $request->session()->getId();
+            $session_workflow =  $request->session()->get('workflows.' . $workflow->flow);
+
+            return array_key_first($session_workflow);
         }
 
         // Fallback for tests or requests without sessions

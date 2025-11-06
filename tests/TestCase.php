@@ -59,6 +59,7 @@ class TestCase extends Orchestra
             $table->string('current_step')->nullable();
             $table->json('history')->nullable();
             $table->json('metadata')->nullable();
+            $table->json('data')->nullable();
             $table->timestamps();
 
             $table->unique(['workflow_name', 'user_key']);

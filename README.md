@@ -92,6 +92,13 @@ Workflow::flow('onboarding')
 
 ### 2. Create a Guard
 
+**Quick Generation:**
+```bash
+php artisan make:workflow-guard EmailVerified
+```
+
+This generates a guard at `App\Guards\EmailVerifiedGuard.php` with the proper structure.
+
 ```php
 namespace App\Guards;
 
@@ -102,7 +109,7 @@ class EmailVerifiedGuard implements GuardContract
 {
     public function passes(Request $request): bool
     {
-        return $request->user()?->hasVerifiedEmail() ?? false;
+        return true;
     }
 
     public function onEnter(Request $request): void {}
@@ -296,6 +303,9 @@ Event::listen(WorkflowCompleted::class, function ($event) {
 ```bash
 # Generate a new workflow
 php artisan make:workflow checkout
+
+# Generate a guard class
+php artisan make:workflow-guard EmailVerified
 
 # Add a step to existing workflow
 php artisan make:workflow-step checkout payment \

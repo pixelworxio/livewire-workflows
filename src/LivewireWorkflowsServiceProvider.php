@@ -6,6 +6,7 @@ namespace Pixelworxio\LivewireWorkflows;
 
 use Illuminate\Support\ServiceProvider;
 use Pixelworxio\LivewireWorkflows\Commands\MakeWorkflowCommand;
+use Pixelworxio\LivewireWorkflows\Commands\MakeWorkflowGuardCommand;
 use Pixelworxio\LivewireWorkflows\Commands\MakeWorkflowStepCommand;
 use Pixelworxio\LivewireWorkflows\Commands\WorkflowsInstallCommand;
 use Pixelworxio\LivewireWorkflows\Commands\WorkflowsScanCommand;
@@ -85,6 +86,7 @@ class LivewireWorkflowsServiceProvider extends ServiceProvider
                 WorkflowsInstallCommand::class,
                 MakeWorkflowCommand::class,
                 MakeWorkflowStepCommand::class,
+                MakeWorkflowGuardCommand::class,
                 WorkflowsScanCommand::class,
             ]);
         }

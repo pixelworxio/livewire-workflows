@@ -2,6 +2,19 @@
 
 All notable changes to `livewire-workflows` will be documented in this file.
 
+## 0.4a - 2025-11-07
+
+### What's Changed
+
+* Feature: Add make:workflow-guard command by @whoisthisstud in https://github.com/pixelworxio/livewire-workflows/pull/2
+* Feature: Add pass/fail Guard hooks by @whoisthisstud in https://github.com/pixelworxio/livewire-workflows/pull/3
+
+### New Contributors
+
+* @whoisthisstud made their first contribution in https://github.com/pixelworxio/livewire-workflows/pull/2
+
+**Full Changelog**: https://github.com/pixelworxio/livewire-workflows/compare/0.3a...0.4a
+
 ## 0.3a - 2025-11-06
 
 Reduce PHP requirement to 8.3 or greater.

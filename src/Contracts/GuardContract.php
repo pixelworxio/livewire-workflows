@@ -35,4 +35,18 @@ interface GuardContract
      * @param  Request  $request  The current request
      */
     public function onExit(Request $request): void;
+
+    /**
+     * Hook called when this step passes.
+     *
+     * @param  Request  $request  The current request
+     */
+    public function onPass(Request $request): void;
+
+    /**
+     * Hook called when this step fails.
+     *
+     * @param  Request  $request  The current request
+     */
+    public function onFail(Request $request): void;
 }

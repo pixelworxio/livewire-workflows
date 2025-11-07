@@ -132,13 +132,6 @@ test('guard has proper PHP declarations', function () {
         ->toStartWith("<?php\n\ndeclare(strict_types=1);");
 });
 
-test('displays helpful messages after creation', function () {
-    $this->artisan(MakeWorkflowGuardCommand::class, ['name' => 'HelpfulMessage'])
-        ->expectsOutput('Implement the passes() method to define when the step should be skipped.')
-        ->expectsOutput('Remember: passes() returns true = skip step, false = show step.')
-        ->assertSuccessful();
-});
-
 test('generated guard can be instantiated and implements contract', function () {
     $this->artisan(MakeWorkflowGuardCommand::class, ['name' => 'Instantiable'])
         ->assertSuccessful();

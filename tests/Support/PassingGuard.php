@@ -14,13 +14,8 @@ class PassingGuard implements GuardContract
         return true; // Always passes - step is skipped
     }
 
-    public function onEnter(Request $request): void
-    {
-        //
-    }
-
-    public function onExit(Request $request): void
-    {
-        //
-    }
+    public function onEnter(Request $request): void {}
+    public function onExit(Request $request): void {}
+    public function onPass(Request $request): void {}
+    public function onFail(Request $request): void {}
 }

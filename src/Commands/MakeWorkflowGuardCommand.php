@@ -58,9 +58,6 @@ class MakeWorkflowGuardCommand extends Command
         File::put($filePath, $stub);
 
         $this->info("Guard created successfully: {$filePath}");
-        $this->newLine();
-        $this->line("Implement the passes() method to define when the step should be skipped.");
-        $this->line("Remember: passes() returns true = skip step, false = show step.");
 
         return self::SUCCESS;
     }
@@ -81,12 +78,9 @@ class {$className} implements GuardContract
 {
     /**
      * Determine if the guard passes.
-     * - A passing guard will effectively skip the related step
-     * - A failing guard will halt the user at the related step
      *
      * @param  Request  \$request  The current request
-     * @return bool
-     *
+     * @return bool True if the step can be skipped, false if the step should be shown
      */
     public function passes(Request \$request): bool
     {
@@ -98,20 +92,28 @@ class {$className} implements GuardContract
      *
      * @param  Request  \$request  The current request
      */
-    public function onEnter(Request \$request): void
-    {
-        //
-    }
+    public function onEnter(Request \$request): void {}
 
     /**
      * Hook called when exiting this step.
      *
      * @param  Request  \$request  The current request
      */
-    public function onExit(Request \$request): void
-    {
-        //
-    }
+    public function onExit(Request \$request): void {}
+
+    /**
+     * Hook called when this step passes.
+     *
+     * @param  Request  \$request  The current request
+     */
+    public function onPass(Request \$request): void {}
+
+    /**
+     * Hook called when this step fails.
+     *
+     * @param  Request  \$request  The current request
+     */
+    public function onFail(Request \$request): void {}
 }
 
 PHP;

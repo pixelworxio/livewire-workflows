@@ -182,7 +182,9 @@ class WorkflowEngine
 
             if ($guard->passes($request)) {
                 $completedSteps++;
+                $guard->onPass($request);
             } else {
+                $guard->onFail($request);
                 if (is_null($nextStepKey)) {
                     $nextStepKey = $step->key;
                 }

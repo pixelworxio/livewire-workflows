@@ -14,13 +14,8 @@ class FailingGuard implements GuardContract
         return false; // Always fails - step must be shown
     }
 
-    public function onEnter(Request $request): void
-    {
-        //
-    }
-
-    public function onExit(Request $request): void
-    {
-        //
-    }
+    public function onEnter(Request $request): void {}
+    public function onExit(Request $request): void {}
+    public function onPass(Request $request): void {}
+    public function onFail(Request $request): void {}
 }

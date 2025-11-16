@@ -265,6 +265,15 @@ trait InteractsWithWorkflows
             return [];
         }
 
+        $repository = app(WorkflowStateRepository::class);
+        $userKey = $this->getUserKey();
+
+        // First, try to get stored parameters from workflow state
+        $storedParameters = $repository->getState($workflow->flow, $userKey, '_route_parameters');
+        if (! empty($storedParameters) && is_array($storedParameters)) {
+            return $storedParameters;
+        }
+
         $request = request();
         $currentRoute = $request->route();
 
@@ -280,6 +289,11 @@ trait InteractsWithWorkflows
             if (array_key_exists($paramName, $allParameters)) {
                 $workflowParameters[$paramName] = $allParameters[$paramName];
             }
+        }
+
+        // Store parameters for future use if we found any
+        if (! empty($workflowParameters)) {
+            $repository->setState($workflow->flow, $userKey, '_route_parameters', $workflowParameters);
         }
 
         return $workflowParameters;

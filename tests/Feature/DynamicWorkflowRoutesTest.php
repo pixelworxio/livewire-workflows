@@ -281,3 +281,67 @@ test('complex route with multiple parameters works end-to-end', function () {
     $response = $this->get('/organization/acme/user/42/order/999');
     $response->assertRedirect(route('order-workflow.review', ['org' => 'acme', 'user' => '42', 'order' => '999']));
 });
+
+test('route parameters are stored in workflow state and retrieved on continue', function () {
+    Workflow::flow('checkout')
+        ->entersAt(name: 'checkout.start', path: '/user/{user}/product/{product}')
+        ->finishesAt('dashboard')
+        ->step('shipping')
+        ->goTo(DynamicStepOneComponent::class)
+        ->unlessPasses(DynamicStepOneGuard::class)
+        ->order(10)
+        ->step('payment')
+        ->goTo(DynamicStepTwoComponent::class)
+        ->unlessPasses(DynamicStepTwoGuard::class)
+        ->order(20);
+
+    Route::get('/dashboard', fn () => 'Dashboard')->name('dashboard');
+    app(\Pixelworxio\LivewireWorkflows\Support\RouteRegistrar::class)->register();
+    app('router')->getRoutes()->refreshNameLookups();
+
+    DynamicStepOneGuard::$shouldPass = false;
+    DynamicStepTwoGuard::$shouldPass = false;
+
+    // First, visit the entry route to store parameters
+    $this->get('/user/123/product/456');
+
+    // Verify parameters are stored in workflow state
+    $repository = app(\Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository::class);
+    $userKey = 'guest-'.md5(request()->ip().(request()->userAgent() ?? 'unknown'));
+    $storedParams = $repository->getState('checkout', $userKey, '_route_parameters');
+
+    expect($storedParams)->toBe(['user' => '123', 'product' => '456']);
+});
+
+test('continue method uses stored route parameters from workflow state', function () {
+    Workflow::flow('checkout')
+        ->entersAt(name: 'checkout.start', path: '/user/{user}/product/{product}')
+        ->finishesAt('dashboard')
+        ->historyMode('stack')
+        ->step('shipping')
+        ->goTo(DynamicStepOneComponent::class)
+        ->unlessPasses(DynamicStepOneGuard::class)
+        ->order(10)
+        ->step('payment')
+        ->goTo(DynamicStepTwoComponent::class)
+        ->unlessPasses(DynamicStepTwoGuard::class)
+        ->order(20);
+
+    Route::get('/dashboard', fn () => 'Dashboard')->name('dashboard');
+    app(\Pixelworxio\LivewireWorkflows\Support\RouteRegistrar::class)->register();
+    app('router')->getRoutes()->refreshNameLookups();
+
+    DynamicStepOneGuard::$shouldPass = false;
+    DynamicStepTwoGuard::$shouldPass = true; // Make payment guard pass so we can test continue
+
+    // Visit entry route to store parameters and be redirected to shipping step
+    $response = $this->get('/user/789/product/101');
+    $response->assertRedirect(route('checkout.shipping', ['user' => '789', 'product' => '101']));
+
+    // Verify that parameters are stored and can be retrieved
+    $repository = app(\Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository::class);
+    $userKey = 'guest-'.md5(request()->ip().(request()->userAgent() ?? 'unknown'));
+    $storedParams = $repository->getState('checkout', $userKey, '_route_parameters');
+
+    expect($storedParams)->toBe(['user' => '789', 'product' => '101']);
+});

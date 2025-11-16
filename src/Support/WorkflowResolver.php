@@ -7,6 +7,7 @@ namespace Pixelworxio\LivewireWorkflows\Support;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar;
 
 /**
@@ -19,6 +20,7 @@ class WorkflowResolver
     public function __construct(
         protected WorkflowRegistrar $registrar,
         protected WorkflowEngine $engine,
+        protected WorkflowStateRepository $stateRepository,
     ) {}
 
     /**
@@ -39,6 +41,11 @@ class WorkflowResolver
         $workflow = $this->registrar->get($flow);
         $nextStepKey = $this->engine->nextStep($workflow, $request);
         $routeParameters = $this->extractRouteParameters($request, $workflow);
+
+        // Store route parameters in workflow state for future navigation
+        if (! empty($routeParameters)) {
+            $this->storeRouteParameters($flow, $request, $workflow, $routeParameters);
+        }
 
         if ($nextStepKey === null) {
             // Workflow complete
@@ -108,6 +115,13 @@ class WorkflowResolver
             return [];
         }
 
+        // First, try to get stored parameters from workflow state
+        $storedParameters = $this->getStoredRouteParameters($request, $workflow);
+        if (! empty($storedParameters)) {
+            return $storedParameters;
+        }
+
+        // Fall back to extracting from current route
         $currentRoute = $request->route();
         if (! $currentRoute) {
             return [];
@@ -124,5 +138,51 @@ class WorkflowResolver
         }
 
         return $workflowParameters;
+    }
+
+    /**
+     * Store route parameters in workflow state.
+     *
+     * @param  array<string, mixed>  $parameters
+     */
+    protected function storeRouteParameters(string $flow, Request $request, WorkflowDefinition $workflow, array $parameters): void
+    {
+        $userKey = $this->getUserKey($request, $workflow);
+        $this->stateRepository->setState($flow, $userKey, '_route_parameters', $parameters);
+    }
+
+    /**
+     * Get stored route parameters from workflow state.
+     *
+     * @return array<string, mixed>
+     */
+    protected function getStoredRouteParameters(Request $request, WorkflowDefinition $workflow): array
+    {
+        $userKey = $this->getUserKey($request, $workflow);
+        $parameters = $this->stateRepository->getState($workflow->flow, $userKey, '_route_parameters');
+
+        return is_array($parameters) ? $parameters : [];
+    }
+
+    /**
+     * Get the user key for state persistence.
+     *
+     * Returns the authenticated user ID, session ID, or a guest identifier.
+     */
+    protected function getUserKey(Request $request, WorkflowDefinition $workflow): string|int
+    {
+        if ($request->user()) {
+            return $request->user()->getAuthIdentifier();
+        }
+
+        if ($request->hasSession()) {
+            $session_workflow = $request->session()->get('workflows.'.$workflow->flow);
+
+            if ($session_workflow) {
+                return array_key_first($session_workflow);
+            }
+        }
+
+        return 'guest-'.md5($request->ip().($request->userAgent() ?? 'unknown'));
     }
 }

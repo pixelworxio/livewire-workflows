@@ -38,7 +38,8 @@ class LivewireWorkflowsServiceProvider extends ServiceProvider
         $this->app->singleton(WorkflowResolver::class, function ($app) {
             return new WorkflowResolver(
                 $app->make(WorkflowRegistrar::class),
-                $app->make(WorkflowEngine::class)
+                $app->make(WorkflowEngine::class),
+                $app->make(WorkflowStateRepository::class)
             );
         });
 

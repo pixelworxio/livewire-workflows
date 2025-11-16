@@ -307,7 +307,8 @@ test('route parameters are stored in workflow state and retrieved on continue', 
 
     // Verify parameters are stored in workflow state
     $repository = app(\Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository::class);
-    $userKey = 'guest-'.md5(request()->ip().(request()->userAgent() ?? 'unknown'));
+    // Use session ID as user key (same logic as WorkflowResolver)
+    $userKey = request()->hasSession() ? request()->session()->getId() : 'guest-'.md5(request()->ip().(request()->userAgent() ?? 'unknown'));
     $storedParams = $repository->getState('checkout', $userKey, '_route_parameters');
 
     expect($storedParams)->toBe(['user' => '123', 'product' => '456']);
@@ -340,7 +341,8 @@ test('continue method uses stored route parameters from workflow state', functio
 
     // Verify that parameters are stored and can be retrieved
     $repository = app(\Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository::class);
-    $userKey = 'guest-'.md5(request()->ip().(request()->userAgent() ?? 'unknown'));
+    // Use session ID as user key (same logic as WorkflowResolver)
+    $userKey = request()->hasSession() ? request()->session()->getId() : 'guest-'.md5(request()->ip().(request()->userAgent() ?? 'unknown'));
     $storedParams = $repository->getState('checkout', $userKey, '_route_parameters');
 
     expect($storedParams)->toBe(['user' => '789', 'product' => '101']);

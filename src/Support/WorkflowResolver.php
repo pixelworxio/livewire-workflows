@@ -176,11 +176,7 @@ class WorkflowResolver
         }
 
         if ($request->hasSession()) {
-            $session_workflow = $request->session()->get('workflows.'.$workflow->flow);
-
-            if ($session_workflow) {
-                return array_key_first($session_workflow);
-            }
+            return $request->session()->getId();
         }
 
         return 'guest-'.md5($request->ip().($request->userAgent() ?? 'unknown'));

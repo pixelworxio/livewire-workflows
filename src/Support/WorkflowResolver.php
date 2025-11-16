@@ -42,16 +42,16 @@ class WorkflowResolver
         $nextStepKey = $this->engine->nextStep($workflow, $request);
         $routeParameters = $this->extractRouteParameters($request, $workflow);
 
-        // Store route parameters in workflow state for future navigation
-        if (! empty($routeParameters)) {
-            $this->storeRouteParameters($flow, $request, $workflow, $routeParameters);
-        }
-
         if ($nextStepKey === null) {
-            // Workflow complete
+            // Workflow complete - don't store parameters since we're clearing state
             $this->engine->complete($workflow, $request);
 
             return Redirect::route($doneRoute ?? $workflow->finishRoute, $routeParameters);
+        }
+
+        // Store route parameters in workflow state for future navigation (only for ongoing workflows)
+        if (! empty($routeParameters)) {
+            $this->storeRouteParameters($flow, $request, $workflow, $routeParameters);
         }
 
         // Advance to next step

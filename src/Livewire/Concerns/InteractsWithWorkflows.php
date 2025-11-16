@@ -246,7 +246,17 @@ trait InteractsWithWorkflows
             return $request->user()->getAuthIdentifier();
         }
 
+        // Check if session is available
         if ($request->hasSession()) {
+            // Try to get user key from existing workflow session data
+            if ($this->workflowName) {
+                $session_workflow = $request->session()->get('workflows.'.$this->workflowName);
+
+                if ($session_workflow) {
+                    return array_key_first($session_workflow);
+                }
+            }
+
             return $request->session()->getId();
         }
 

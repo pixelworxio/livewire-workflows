@@ -63,22 +63,27 @@ trait InteractsWithWorkflows
     public function continue(string $flow): void
     {
         $this->syncWorkflowState();
-        $workflow = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class)->get($flow);
+        $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
+        $workflow = $registrar->get($flow);
+        $routeParameters = $this->extractWorkflowRouteParameters($workflow);
 
-        $this->redirect(route($workflow->entryRouteName), navigate: true);
+        $this->redirect(route($workflow->entryRouteName, $routeParameters), navigate: true);
     }
 
     public function back(string $flow, string $currentKey): void
     {
         $this->syncWorkflowState();
+        $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
         $resolver = app(\Pixelworxio\LivewireWorkflows\Support\WorkflowResolver::class);
+        $workflow = $registrar->get($flow);
         $previousRoute = $resolver->previousRouteNameFor($flow, $currentKey, request());
 
         if ($previousRoute === null) {
             return;
         }
 
-        $this->redirect(route($previousRoute), navigate: true);
+        $routeParameters = $this->extractWorkflowRouteParameters($workflow);
+        $this->redirect(route($previousRoute, $routeParameters), navigate: true);
     }
 
     /**
@@ -246,5 +251,37 @@ trait InteractsWithWorkflows
         }
 
         return 'guest-'.md5($request->ip().($request->userAgent() ?? 'unknown'));
+    }
+
+    /**
+     * Extract route parameters for the workflow from the current request.
+     *
+     * @param  \Pixelworxio\LivewireWorkflows\Support\WorkflowDefinition  $workflow
+     * @return array<string, mixed>
+     */
+    protected function extractWorkflowRouteParameters($workflow): array
+    {
+        if (! $workflow->hasRouteParameters()) {
+            return [];
+        }
+
+        $request = request();
+        $currentRoute = $request->route();
+
+        if (! $currentRoute) {
+            return [];
+        }
+
+        $allParameters = $currentRoute->parameters();
+        $workflowParameters = [];
+
+        // Only include parameters that are defined in the workflow
+        foreach ($workflow->routeParameters as $paramName) {
+            if (array_key_exists($paramName, $allParameters)) {
+                $workflowParameters[$paramName] = $allParameters[$paramName];
+            }
+        }
+
+        return $workflowParameters;
     }
 }

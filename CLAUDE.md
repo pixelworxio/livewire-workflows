@@ -485,6 +485,35 @@ public function __construct(
 ->step('shipping')  // → /checkout/shipping → checkout.shipping
 ```
 
+**Dynamic Routes with Parameters**:
+
+Workflows support dynamic route parameters and route model binding:
+
+```php
+->entersAt(name: 'checkout.start', path: '/user/{user}/product/{product}')
+->step('shipping')  // → /user/{user}/product/{product}/shipping
+```
+
+**Key Implementation Details**:
+- Route parameters are parsed from `entryPath` and stored in `WorkflowDefinition::$routeParameters`
+- Parameters are automatically extracted from the current request and passed through navigation
+- `continue()` and `back()` methods preserve route parameters seamlessly
+- Supports Laravel's route model binding syntax: `{user:id}`, `{product:slug}`, etc.
+- `WorkflowDefinition::parseRouteParameters()` extracts parameter names using regex
+- `WorkflowResolver::extractRouteParameters()` filters current route parameters to only include workflow-defined parameters
+- `InteractsWithWorkflows::extractWorkflowRouteParameters()` provides the same functionality for Livewire components
+
+**Example with Model Binding**:
+```php
+Workflow::flow('order-review')
+    ->entersAt(name: 'order-review.start', path: '/organization/{organization:slug}/order/{order:id}')
+    ->finishesAt('dashboard')
+    ->step('review')
+        ->goTo(ReviewOrder::class)
+        ->unlessPasses(OrderNotReviewed::class)
+        ->order(10);
+```
+
 ---
 
 ## Testing Conventions

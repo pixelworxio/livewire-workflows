@@ -38,18 +38,19 @@ class WorkflowResolver
     {
         $workflow = $this->registrar->get($flow);
         $nextStepKey = $this->engine->nextStep($workflow, $request);
+        $routeParameters = $this->extractRouteParameters($request, $workflow);
 
         if ($nextStepKey === null) {
             // Workflow complete
             $this->engine->complete($workflow, $request);
 
-            return Redirect::route($doneRoute ?? $workflow->finishRoute);
+            return Redirect::route($doneRoute ?? $workflow->finishRoute, $routeParameters);
         }
 
         // Advance to next step
         $this->engine->advanceTo($workflow, $nextStepKey, $request);
 
-        return Redirect::route($workflow->getStepRouteName($nextStepKey));
+        return Redirect::route($workflow->getStepRouteName($nextStepKey), $routeParameters);
     }
 
     /**
@@ -92,5 +93,36 @@ class WorkflowResolver
         $workflow = $this->registrar->get($flow);
 
         return $this->engine->progress($workflow, $request);
+    }
+
+    /**
+     * Extract route parameters from the current request.
+     *
+     * Filters the route parameters to only include those defined in the workflow.
+     *
+     * @return array<string, mixed>
+     */
+    protected function extractRouteParameters(Request $request, WorkflowDefinition $workflow): array
+    {
+        if (! $workflow->hasRouteParameters()) {
+            return [];
+        }
+
+        $currentRoute = $request->route();
+        if (! $currentRoute) {
+            return [];
+        }
+
+        $allParameters = $currentRoute->parameters();
+        $workflowParameters = [];
+
+        // Only include parameters that are defined in the workflow
+        foreach ($workflow->routeParameters as $paramName) {
+            if (array_key_exists($paramName, $allParameters)) {
+                $workflowParameters[$paramName] = $allParameters[$paramName];
+            }
+        }
+
+        return $workflowParameters;
     }
 }

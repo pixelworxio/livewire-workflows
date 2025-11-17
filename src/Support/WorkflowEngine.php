@@ -47,8 +47,13 @@ class WorkflowEngine
 
             // If guard fails (returns false), this is the next unmet step
             if (! $guard->passes($request)) {
+                $guard->onFail($request);
+
                 return $step->key;
             }
+
+            // Guard passed - step can be skipped
+            $guard->onPass($request);
         }
 
         // All guards passed - workflow is complete
@@ -182,9 +187,7 @@ class WorkflowEngine
 
             if ($guard->passes($request)) {
                 $completedSteps++;
-                $guard->onPass($request);
             } else {
-                $guard->onFail($request);
                 if (is_null($nextStepKey)) {
                     $nextStepKey = $step->key;
                 }

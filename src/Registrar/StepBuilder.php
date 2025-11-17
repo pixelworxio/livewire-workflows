@@ -8,7 +8,7 @@ use Pixelworxio\LivewireWorkflows\Support\StepDefinition;
 
 class StepBuilder
 {
-    protected ?string $component = null;
+    protected string|array|null $component = null;
 
     protected ?string $guard = null;
 
@@ -20,7 +20,12 @@ class StepBuilder
         protected FlowBuilder $flowBuilder
     ) {}
 
-    public function goTo(string $component): static
+    /**
+     * Set the component or controller for this step.
+     *
+     * @param  string|array  $component  Livewire component class, invokable controller class, or [ControllerClass, 'method']
+     */
+    public function goTo(string|array $component): static
     {
         $this->component = $component;
 

@@ -7,6 +7,7 @@ namespace Pixelworxio\LivewireWorkflows\Support;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar;
 
 /**
@@ -19,6 +20,7 @@ class WorkflowResolver
     public function __construct(
         protected WorkflowRegistrar $registrar,
         protected WorkflowEngine $engine,
+        protected WorkflowStateRepository $stateRepository,
     ) {}
 
     /**
@@ -38,18 +40,24 @@ class WorkflowResolver
     {
         $workflow = $this->registrar->get($flow);
         $nextStepKey = $this->engine->nextStep($workflow, $request);
+        $routeParameters = $this->extractRouteParameters($request, $workflow);
 
         if ($nextStepKey === null) {
-            // Workflow complete
+            // Workflow complete - don't store parameters since we're clearing state
             $this->engine->complete($workflow, $request);
 
-            return Redirect::route($doneRoute ?? $workflow->finishRoute);
+            return Redirect::route($doneRoute ?? $workflow->finishRoute, $routeParameters);
+        }
+
+        // Store route parameters in workflow state for future navigation (only for ongoing workflows)
+        if (! empty($routeParameters)) {
+            $this->storeRouteParameters($flow, $request, $workflow, $routeParameters);
         }
 
         // Advance to next step
         $this->engine->advanceTo($workflow, $nextStepKey, $request);
 
-        return Redirect::route($workflow->getStepRouteName($nextStepKey));
+        return Redirect::route($workflow->getStepRouteName($nextStepKey), $routeParameters);
     }
 
     /**
@@ -92,5 +100,93 @@ class WorkflowResolver
         $workflow = $this->registrar->get($flow);
 
         return $this->engine->progress($workflow, $request);
+    }
+
+    /**
+     * Extract route parameters from the current request.
+     *
+     * Filters the route parameters to only include those defined in the workflow.
+     *
+     * @return array<string, mixed>
+     */
+    protected function extractRouteParameters(Request $request, WorkflowDefinition $workflow): array
+    {
+        if (! $workflow->hasRouteParameters()) {
+            return [];
+        }
+
+        // First, try to get stored parameters from workflow state
+        $storedParameters = $this->getStoredRouteParameters($request, $workflow);
+        if (! empty($storedParameters)) {
+            return $storedParameters;
+        }
+
+        // Fall back to extracting from current route
+        $currentRoute = $request->route();
+        if (! $currentRoute) {
+            return [];
+        }
+
+        $allParameters = $currentRoute->parameters();
+        $workflowParameters = [];
+
+        // Only include parameters that are defined in the workflow
+        foreach ($workflow->routeParameters as $paramName) {
+            if (array_key_exists($paramName, $allParameters)) {
+                $workflowParameters[$paramName] = $allParameters[$paramName];
+            }
+        }
+
+        return $workflowParameters;
+    }
+
+    /**
+     * Store route parameters in workflow state.
+     *
+     * @param  array<string, mixed>  $parameters
+     */
+    protected function storeRouteParameters(string $flow, Request $request, WorkflowDefinition $workflow, array $parameters): void
+    {
+        $userKey = $this->getUserKey($request, $workflow);
+        $this->stateRepository->setState($flow, $userKey, '_route_parameters', $parameters);
+    }
+
+    /**
+     * Get stored route parameters from workflow state.
+     *
+     * @return array<string, mixed>
+     */
+    protected function getStoredRouteParameters(Request $request, WorkflowDefinition $workflow): array
+    {
+        $userKey = $this->getUserKey($request, $workflow);
+        $parameters = $this->stateRepository->getState($workflow->flow, $userKey, '_route_parameters');
+
+        return is_array($parameters) ? $parameters : [];
+    }
+
+    /**
+     * Get the user key for state persistence.
+     *
+     * Returns the authenticated user ID, session ID, or a guest identifier.
+     */
+    protected function getUserKey(Request $request, WorkflowDefinition $workflow): string|int
+    {
+        if ($request->user()) {
+            return $request->user()->getAuthIdentifier();
+        }
+
+        // Check if session is available
+        if ($request->hasSession()) {
+            $session_workflow = $request->session()->get('workflows.'.$workflow->flow);
+
+            if ($session_workflow) {
+                return array_key_first($session_workflow);
+            }
+
+            return $request->session()->getId();
+        }
+
+        // Fallback for tests or requests without sessions
+        return 'guest-'.md5($request->ip().($request->userAgent() ?? 'unknown'));
     }
 }

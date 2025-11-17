@@ -25,13 +25,13 @@ class RouteRegistrar
         $middleware = $middleware ?? config('livewire-workflows.middleware', ['web']);
 
         foreach ($this->workflowRegistrar->all() as $workflow) {
-            // Register entry route
+            // Register entry route (preserves route parameters from entryPath)
             Route::middleware($middleware)
                 ->get($workflow->entryPath, [WorkflowEntryController::class, '__invoke'])
                 ->defaults('flow', $workflow->flow)
                 ->name($workflow->entryRouteName);
 
-            // Register step routes
+            // Register step routes (inherits parameters from entry path)
             foreach ($workflow->steps as $step) {
                 $routeName = $workflow->getStepRouteName($step->key);
                 $routePath = $workflow->getStepPath($step->key);

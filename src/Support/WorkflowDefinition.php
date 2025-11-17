@@ -18,6 +18,13 @@ use Pixelworxio\LivewireWorkflows\Exceptions\InvalidWorkflowConfigurationExcepti
 class WorkflowDefinition
 {
     /**
+     * Parsed route parameters from the entry path.
+     *
+     * @var array<string>
+     */
+    public readonly array $routeParameters;
+
+    /**
      * @param  string  $flow  The workflow name/identifier
      * @param  string  $entryRouteName  The route name for workflow entry
      * @param  string  $entryPath  The base path for the workflow
@@ -33,6 +40,7 @@ class WorkflowDefinition
         public readonly string $historyMode,
         public readonly array $steps,
     ) {
+        $this->routeParameters = $this->parseRouteParameters($this->entryPath);
         $this->validate();
     }
 
@@ -112,6 +120,29 @@ class WorkflowDefinition
     public function hasHistory(): bool
     {
         return $this->historyMode === 'stack';
+    }
+
+    /**
+     * Check if this workflow has route parameters.
+     */
+    public function hasRouteParameters(): bool
+    {
+        return ! empty($this->routeParameters);
+    }
+
+    /**
+     * Parse route parameters from a path.
+     *
+     * Extracts parameter names from route placeholders like {user}, {product:id}, etc.
+     *
+     * @param  string  $path  The route path
+     * @return array<string> Array of parameter names
+     */
+    protected function parseRouteParameters(string $path): array
+    {
+        preg_match_all('/\{([^}:]+)/', $path, $matches);
+
+        return $matches[1] ?? [];
     }
 
     /**

@@ -194,6 +194,61 @@ Routes are **automatically registered** from your DSL:
 - `checkout.shipping` → `/checkout/shipping`
 - `checkout.payment` → `/checkout/payment`
 
+### Dynamic Routes with Parameters
+
+Workflows support **dynamic route parameters** and **route model binding**:
+
+```php
+Workflow::flow('user-checkout')
+    ->entersAt(name: 'user-checkout.start', path: '/user/{user}/checkout/{product}')
+    ->finishesAt('dashboard')
+    ->step('shipping')
+        ->goTo(\App\Livewire\Checkout\Shipping::class)
+        ->unlessPasses(\App\Guards\HasShippingAddress::class)
+        ->order(10)
+    ->step('payment')
+        ->goTo(\App\Livewire\Checkout\Payment::class)
+        ->unlessPasses(\App\Guards\HasPaymentMethod::class)
+        ->order(20);
+```
+
+**Generated Routes:**
+- `user-checkout.start` → `/user/{user}/checkout/{product}`
+- `user-checkout.shipping` → `/user/{user}/checkout/{product}/shipping`
+- `user-checkout.payment` → `/user/{user}/checkout/{product}/payment`
+
+**Route Model Binding:**
+
+```php
+// Supports Laravel's route model binding syntax
+->entersAt(name: 'checkout.start', path: '/user/{user:id}/product/{product:slug}')
+```
+
+**Navigation Preserves Parameters:**
+
+Route parameters are automatically passed through all workflow navigation:
+
+```php
+class Shipping extends Component
+{
+    use InteractsWithWorkflows;
+
+    // Livewire receives route parameters
+    public function mount($user, $product)
+    {
+        // $user and $product are automatically injected
+    }
+
+    public function submit()
+    {
+        // Parameters are automatically preserved when continuing
+        $this->continue('user-checkout'); // Still navigates with {user} and {product}
+    }
+}
+```
+
+The `continue()` and `back()` methods automatically extract and pass route parameters from the current request, ensuring seamless navigation throughout the workflow.
+
 ### Guard Behavior
 
 Guards use **positive semantics**:

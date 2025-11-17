@@ -224,6 +224,8 @@ class WorkflowEngine
             if ($session_workflow) {
                 return array_key_first($session_workflow);
             }
+
+            return $request->session()->getId();
         }
 
         // Fallback for tests or requests without sessions

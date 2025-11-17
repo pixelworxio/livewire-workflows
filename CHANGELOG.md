@@ -2,6 +2,17 @@
 
 All notable changes to `livewire-workflows` will be documented in this file.
 
+## 0.5b - 2025-11-17
+
+### What's Changed
+
+* Write a CLAUDE.md by @whoisthisstud in https://github.com/pixelworxio/livewire-workflows/pull/4
+* feat: Add support for dynamic workflow routes with route parameters by @whoisthisstud in https://github.com/pixelworxio/livewire-workflows/pull/5
+* fix: Guard hook methods not firing in WorkflowEngine by @whoisthisstud in https://github.com/pixelworxio/livewire-workflows/pull/6
+* feat: add support for using controllers for steps by @whoisthisstud in https://github.com/pixelworxio/livewire-workflows/pull/7
+
+**Full Changelog**: https://github.com/pixelworxio/livewire-workflows/compare/0.4a...0.5b
+
 ## 0.4a - 2025-11-07
 
 ### What's Changed

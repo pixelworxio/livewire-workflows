@@ -6,7 +6,7 @@
 </p>
 
 ---
-# Livewire Workflows (ALPHA)
+# Livewire Workflows (BETA)
 **Build powerful multi-step workflows in Laravel with zero boilerplate.** Define complex user journeys—onboarding, checkouts, surveys—using an expressive, route-like DSL. Get automatic route registration, guard-based navigation, state persistence, and full Livewire integration out of the box.
 
 ```php

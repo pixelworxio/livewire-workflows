@@ -127,8 +127,10 @@ class EmailVerifiedGuard implements GuardContract
 namespace App\Livewire\Onboarding;
 
 use Livewire\Component;
+use Pixelworxio\LivewireWorkflows\Attributes\WorkflowStep;
 use Pixelworxio\LivewireWorkflows\Livewire\Concerns\InteractsWithWorkflows;
 
+#[WorkflowStep(flow:'onboarding', key:'verify-email')]
 class VerifyEmail extends Component
 {
     use InteractsWithWorkflows;
@@ -232,6 +234,8 @@ Route parameters are automatically passed through all workflow navigation:
 class Shipping extends Component
 {
     use InteractsWithWorkflows;
+    
+    protected ?string $workflowName = 'user-checkout';
 
     // Livewire receives route parameters
     public function mount($user, $product)
@@ -242,7 +246,7 @@ class Shipping extends Component
     public function submit()
     {
         // Parameters are automatically preserved when continuing
-        $this->continue('user-checkout'); // Still navigates with {user} and {product}
+        $this->continue($this->workflowName); // Still navigates with {user} and {product}
     }
 }
 ```
@@ -494,56 +498,6 @@ return [
 | `null` | Stateless workflows | None |
 | `session` | Guest users, simple flows | Session lifetime |
 | `eloquent` | Authenticated users, production | Database |
-
----
-
-[//]: # (## 🧪 Testing - PENDING) 
-
-[//]: # ()
-[//]: # (```php)
-
-[//]: # (use Pixelworxio\LivewireWorkflows\Facades\Workflow;)
-
-[//]: # ()
-[//]: # (test&#40;'redirects to first incomplete step', function &#40;&#41; {)
-
-[//]: # (    Workflow::flow&#40;'test-flow'&#41;)
-
-[//]: # (        ->entersAt&#40;name: 'test.start', path: '/test'&#41;)
-
-[//]: # (        ->finishesAt&#40;'dashboard'&#41;)
-
-[//]: # (        ->step&#40;'step-one'&#41;)
-
-[//]: # (            ->goTo&#40;StepOne::class&#41;)
-
-[//]: # (            ->unlessPasses&#40;StepOneGuard::class&#41;)
-
-[//]: # (            ->order&#40;10&#41;;)
-
-[//]: # (    )
-[//]: # (    StepOneGuard::$shouldPass = false;)
-
-[//]: # (    )
-[//]: # (    $this->get&#40;'/test'&#41;)
-
-[//]: # (        ->assertRedirect&#40;route&#40;'test.step-one'&#41;&#41;;)
-
-[//]: # (}&#41;;)
-
-[//]: # ()
-[//]: # (test&#40;'completes when all guards pass', function &#40;&#41; {)
-
-[//]: # (    StepOneGuard::$shouldPass = true;)
-
-[//]: # (    )
-[//]: # (    $this->get&#40;'/test'&#41;)
-
-[//]: # (        ->assertRedirect&#40;route&#40;'dashboard'&#41;&#41;;)
-
-[//]: # (}&#41;;)
-
-[//]: # (```)
 
 ---
 

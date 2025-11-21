@@ -22,9 +22,25 @@ return [
     | Middleware
     |--------------------------------------------------------------------------
     |
-    | Middleware applied to all workflow routes.
-    | You can add 'auth' here to protect all workflows.
+    | Middleware applied to all workflow routes by default.
+    | Individual workflows and steps can override this using the middleware()
+    | method or #[StepMiddleware] attribute.
     |
     */
     'middleware' => ['web'],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Middleware Precedence
+    |--------------------------------------------------------------------------
+    |
+    | How middleware should be combined when multiple levels are defined.
+    |
+    | Supported: "override", "merge"
+    |
+    | - override: Step middleware completely replaces workflow/global middleware
+    | - merge: Step, workflow, and global middleware are all combined
+    |
+    */
+    'middleware_precedence' => env('WORKFLOWS_MIDDLEWARE_PRECEDENCE', 'override'),
 ];

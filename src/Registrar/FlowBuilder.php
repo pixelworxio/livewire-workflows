@@ -17,6 +17,8 @@ class FlowBuilder
 
     protected string $historyMode = 'none';
 
+    protected array|\Closure|null $middleware = null;
+
     protected ?StepBuilder $currentStep = null;
 
     public array $steps = [];
@@ -63,6 +65,19 @@ class FlowBuilder
         return $this;
     }
 
+    /**
+     * Set middleware for this workflow.
+     *
+     * @param  array|\Closure  $middleware  Array of middleware or a closure that returns middleware
+     * @return static
+     */
+    public function middleware(array|\Closure $middleware): static
+    {
+        $this->middleware = $middleware;
+
+        return $this;
+    }
+
     public function step(string $key): StepBuilder
     {
         if ($this->currentStep !== null) {
@@ -105,7 +120,8 @@ class FlowBuilder
             entryPath: $this->entryPath,
             finishRoute: $this->finishRoute,
             historyMode: $this->historyMode,
-            steps: $this->steps
+            steps: $this->steps,
+            middleware: $this->middleware
         );
 
         $this->registrar->register($workflow);

@@ -15,6 +15,7 @@ class StepDefinition
         public readonly string|array|null $component = null,
         public readonly ?string $guardClass = null,
         public readonly int $order = 0,
+        public readonly array|\Closure|null $middleware = null,
     ) {
         $this->validate();
     }

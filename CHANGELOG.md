@@ -2,6 +2,22 @@
 
 All notable changes to `livewire-workflows` will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- **WorkflowName Attribute**: New `#[WorkflowName]` attribute for declaring workflow names on Livewire component classes
+  - Eliminates boilerplate of manually setting `$workflowName` property
+  - Makes workflow association explicit and declarative
+  - Auto-detected during `bootInteractsWithWorkflows()`
+  - Falls back to route-based auto-detection if not present
+- Comprehensive tests for WorkflowName attribute functionality
+- Documentation updates in README.md and CLAUDE.md
+
+### Changed
+
+- Updated `InteractsWithWorkflows` trait to check for `WorkflowName` attribute before falling back to route-based detection
+
 ## 0.5b - 2025-11-17
 
 ### What's Changed

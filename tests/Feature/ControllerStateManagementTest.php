@@ -3,11 +3,6 @@
 declare(strict_types=1);
 
 use Illuminate\Http\Request;
-use Pixelworxio\LivewireWorkflows\Facades\Workflow;
-use Tests\Support\FailingGuard;
-use Tests\Support\PassingGuard;
-use Tests\Support\TestControllerWithState;
-use Tests\Support\TestStepOneComponent;
 
 beforeEach(function () {
     app(Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class)->clear();
@@ -217,7 +212,8 @@ test('workflowState helper resolves user key from authenticated user', function 
     $request = Request::create('/test', 'GET');
 
     // Mock authenticated user
-    $user = new class {
+    $user = new class
+    {
         public function getAuthIdentifier()
         {
             return 123;

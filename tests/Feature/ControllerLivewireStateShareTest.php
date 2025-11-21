@@ -7,9 +7,8 @@ use Livewire\Livewire;
 use Pixelworxio\LivewireWorkflows\Facades\Workflow;
 use Tests\Support\FailingGuard;
 use Tests\Support\PassingGuard;
-use Tests\Support\TestControllerWithState;
 use Tests\Support\TestComponentWithControllerState;
-use Tests\Support\TestInvokableController;
+use Tests\Support\TestControllerWithState;
 
 beforeEach(function () {
     app(Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class)->clear();

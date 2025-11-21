@@ -31,6 +31,7 @@ class WorkflowDefinition
      * @param  string  $finishRoute  The route name to redirect on completion
      * @param  string  $historyMode  History tracking mode: 'none' or 'stack'
      * @param  array<string, StepDefinition>  $steps  Associative array of step definitions keyed by step key
+     * @param  array|\Closure|null  $middleware  Middleware to apply to this workflow's routes (optional)
      */
     public function __construct(
         public readonly string $flow,
@@ -39,6 +40,7 @@ class WorkflowDefinition
         public readonly string $finishRoute,
         public readonly string $historyMode,
         public readonly array $steps,
+        public readonly array|\Closure|null $middleware = null,
     ) {
         $this->routeParameters = $this->parseRouteParameters($this->entryPath);
         $this->validate();

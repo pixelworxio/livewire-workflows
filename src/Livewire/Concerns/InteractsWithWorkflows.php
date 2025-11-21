@@ -7,6 +7,7 @@ namespace Pixelworxio\LivewireWorkflows\Livewire\Concerns;
 use Illuminate\Support\Facades\Crypt;
 use Pixelworxio\LivewireWorkflows\Attributes\WorkflowName;
 use Pixelworxio\LivewireWorkflows\Attributes\WorkflowState;
+use Pixelworxio\LivewireWorkflows\Attributes\WorkflowStep;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use ReflectionClass;
 use ReflectionProperty;
@@ -25,12 +26,21 @@ trait InteractsWithWorkflows
     public function bootInteractsWithWorkflows(): void
     {
         if ($this->workflowName === null) {
-            // First, check if the component class has a WorkflowName attribute
             $reflection = new ReflectionClass($this);
-            $attributes = $reflection->getAttributes(WorkflowName::class);
 
-            if (! empty($attributes)) {
-                $attribute = $attributes[0]->newInstance();
+            // First, check if the component class has a WorkflowStep attribute (preferred)
+            $workflowStepAttributes = $reflection->getAttributes(WorkflowStep::class);
+            if (! empty($workflowStepAttributes)) {
+                $attribute = $workflowStepAttributes[0]->newInstance();
+                $this->workflowName = $attribute->flow;
+
+                return;
+            }
+
+            // Second, check for WorkflowName attribute
+            $workflowNameAttributes = $reflection->getAttributes(WorkflowName::class);
+            if (! empty($workflowNameAttributes)) {
+                $attribute = $workflowNameAttributes[0]->newInstance();
                 $this->workflowName = $attribute->name;
 
                 return;

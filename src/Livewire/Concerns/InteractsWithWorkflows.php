@@ -32,7 +32,7 @@ trait InteractsWithWorkflows
             $workflowStepAttributes = $reflection->getAttributes(WorkflowStep::class);
             if (! empty($workflowStepAttributes)) {
                 $attribute = $workflowStepAttributes[0]->newInstance();
-                $this->workflowName = $attribute->name;
+                $this->workflowName = $attribute->flow;
 
                 return;
             }

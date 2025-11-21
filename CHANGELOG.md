@@ -17,7 +17,7 @@ All notable changes to `livewire-workflows` will be documented in this file.
 ### Added
 
 - **Selective Auth Middleware**: Comprehensive middleware customization at workflow and step levels
-  - **WorkflowStep Attribute** (Preferred): `#[WorkflowStep(name: 'workflow', middleware: ['web', 'auth'])]` - all-in-one attribute
+  - **WorkflowStep Attribute** (Preferred): `#[WorkflowStep(flow: 'checkout', key: 'payment', middleware: ['web', 'auth'])]` - all-in-one attribute
   - **StepMiddleware Attribute**: `#[StepMiddleware(['web', 'auth'])]` for declarative step middleware only
   - **DSL Middleware Methods**: `->middleware(['web', 'auth'])` on FlowBuilder and StepBuilder
   - **Callable Middleware**: Support for dynamic middleware resolution: `->middleware(fn() => ['web', 'auth'])`
@@ -45,9 +45,10 @@ All notable changes to `livewire-workflows` will be documented in this file.
 - **RouteRegistrar**: Enhanced to resolve and apply middleware with configurable precedence logic
 - **StepBuilder**: Automatically reads `WorkflowStep` or `StepMiddleware` attributes from component classes
 - **Config**: Updated middleware documentation to reflect per-workflow/step customization
-- **WorkflowStep Attribute** (Breaking): Signature changed from `WorkflowStep($flow, $key, $order)` to `WorkflowStep($name, $middleware = [])`
-  - `$name` parameter now sets the workflow name (previously `$flow`)
-  - Removed `$key` and `$order` parameters (these were not used for auto-registration)
+- **WorkflowStep Attribute** (Enhanced): Added optional `middleware` parameter while preserving existing signature
+  - Signature: `WorkflowStep($flow, $key, $middleware = [])`
+  - `$flow` parameter sets the workflow name on component
+  - `$key` parameter is for documentation/validation purposes
   - Added optional `$middleware` parameter for setting step middleware
   - Now combines `WorkflowName` and `StepMiddleware` functionality into one attribute
   - Attribute precedence: `WorkflowStep` > `WorkflowName` + `StepMiddleware`
@@ -58,12 +59,13 @@ All notable changes to `livewire-workflows` will be documented in this file.
 
 ### Breaking Changes
 
-- **WorkflowStep attribute signature changed**: Update from `#[WorkflowStep(flow: 'name', key: 'step', order: 10)]` to `#[WorkflowStep(name: 'workflow', middleware: ['web', 'auth'])]`
-  - The `flow` parameter is now `name` and sets the workflow name
-  - The `key` and `order` parameters have been removed
-  - Optional `middleware` parameter added for step-level middleware
-  - **Migration**: If you were using the old WorkflowStep attribute, update to the new signature or use `WorkflowName` + `StepMiddleware` attributes instead
-- **WorkflowMiddleware attribute removed**: Use `->middleware()` method on `FlowBuilder` in your workflow DSL instead
+- **WorkflowMiddleware attribute removed**: If you were using the `#[WorkflowMiddleware]` attribute, use `->middleware()` method on `FlowBuilder` in your workflow DSL instead
+
+### Notes
+
+- **WorkflowStep attribute enhanced**: The `WorkflowStep` attribute now accepts an optional third parameter for middleware: `#[WorkflowStep(flow: 'checkout', key: 'payment', middleware: ['web', 'auth'])]`
+  - This is **not a breaking change** - existing usage without the middleware parameter continues to work
+  - The attribute can now be used as a "god attribute" combining workflow name, step identification, and middleware configuration
 
 ## 0.5b - 2025-11-17
 

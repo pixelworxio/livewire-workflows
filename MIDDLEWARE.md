@@ -38,7 +38,7 @@ use Livewire\Component;
 use Pixelworxio\LivewireWorkflows\Attributes\WorkflowStep;
 use Pixelworxio\LivewireWorkflows\Livewire\Concerns\InteractsWithWorkflows;
 
-#[WorkflowStep(name: 'checkout', middleware: ['web', 'auth', 'verified'])]
+#[WorkflowStep(flow: 'checkout', key: 'payment', middleware: ['web', 'auth', 'verified'])]
 class PaymentStep extends Component
 {
     use InteractsWithWorkflows;

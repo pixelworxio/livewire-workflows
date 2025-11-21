@@ -53,7 +53,7 @@ class VerifiedStepComponent extends Component
 }
 
 // Test Components using WorkflowStep attribute
-#[WorkflowStep(name: 'checkout', middleware: ['web', 'auth'])]
+#[WorkflowStep(flow: 'checkout', key: 'test', middleware: ['web', 'auth'])]
 class WorkflowStepTestComponent extends Component
 {
     use InteractsWithWorkflows;
@@ -64,7 +64,7 @@ class WorkflowStepTestComponent extends Component
     }
 }
 
-#[WorkflowStep(name: 'product-review')]
+#[WorkflowStep(flow: 'product-review', key: 'view')]
 class WorkflowStepNoMiddlewareComponent extends Component
 {
     use InteractsWithWorkflows;

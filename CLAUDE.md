@@ -251,7 +251,26 @@ livewire-workflows/
 **Lifecycle Hooks**:
 - `bootInteractsWithWorkflows()` - Auto-detect workflow name from route
 - `mountInteractsWithWorkflows()` - Hydrate state from repository
-- `dehydrateInteractsWithWorkflows()` - Sync state to repository
+- `updatedInteractsWithWorkflows(string $propertyName, mixed $value)` - Proactively sync state when properties change (v1.1+)
+- `dehydrateInteractsWithWorkflows()` - Sync state to repository as fallback
+
+**State Persistence Strategy** (v1.1+):
+The trait now uses a **dual-layer persistence** approach for maximum reliability:
+
+1. **Proactive Syncing** - Properties marked with `#[WorkflowState]` are immediately persisted when changed via Livewire's `updated()` hook
+   - Ensures state is saved even if dehydration fails
+   - Provides immediate persistence for wire:model bindings
+   - Tracks dirty properties to optimize syncing
+
+2. **Dehydration Fallback** - The dehydrate hook still runs to catch any property changes not captured by the updated hook
+   - Handles direct property assignments in methods
+   - Ensures complete state snapshot at end of request
+   - Backward compatible with existing code
+
+This approach addresses edge cases where:
+- Request fails before dehydration completes
+- Properties are modified outside Livewire's tracking
+- Complex component interactions require immediate persistence
 
 **Navigation Methods**:
 - `continue(string $flow): void` - Move to next step
@@ -706,7 +725,7 @@ Workflow::flow('checkout')
 
 ### 6. State Management with Attributes
 
-**Automatic Persistence**:
+**Automatic Persistence** (Enhanced in v1.1):
 ```php
 use Pixelworxio\LivewireWorkflows\Attributes\WorkflowState;
 
@@ -728,9 +747,16 @@ class ProfileStep extends Component
 ```
 
 Properties are:
-- **Hydrated** on mount
-- **Synced** on dehydrate
+- **Hydrated** on mount (from repository)
+- **Synced immediately** when changed via wire:model or `$this->set()` (v1.1+)
+- **Synced on dehydrate** as fallback to catch all changes
 - **Scoped** to workflow and user
+
+**Dual-Layer Persistence** (v1.1):
+- **Layer 1**: Proactive syncing via `updatedInteractsWithWorkflows()` - catches wire:model and explicit property updates
+- **Layer 2**: Dehydration fallback via `dehydrateInteractsWithWorkflows()` - catches direct assignments in methods
+
+This ensures state is persisted reliably throughout the component lifecycle, not just at the end of the request.
 
 ### 7. Lazy Builder Finalization
 

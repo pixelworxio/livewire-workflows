@@ -16,18 +16,39 @@ All notable changes to `livewire-workflows` will be documented in this file.
 
 ### Added
 
+- **Selective Auth Middleware**: Comprehensive middleware customization at workflow and step levels
+  - **StepMiddleware Attribute** (Preferred): `#[StepMiddleware(['web', 'auth'])]` for declarative step middleware
+  - **WorkflowMiddleware Attribute**: `#[WorkflowMiddleware(['web', 'auth'])]` for workflow-level middleware
+  - **DSL Middleware Methods**: `->middleware(['web', 'auth'])` on FlowBuilder and StepBuilder
+  - **Callable Middleware**: Support for dynamic middleware resolution: `->middleware(fn() => ['web', 'auth'])`
+  - **Middleware Precedence Configuration**: New `middleware_precedence` config option ('override' | 'merge')
+    - **Override mode** (default): Step > Workflow > Global
+    - **Merge mode**: Combines all middleware layers (deduplicated)
+  - Enables mixed public/authenticated steps in same workflow
+  - Fine-grained access control per step
+  - 13 comprehensive tests covering all middleware scenarios
+
 - **WorkflowName Attribute**: New `#[WorkflowName]` attribute for declaring workflow names on Livewire component classes
   - Eliminates boilerplate of manually setting `$workflowName` property
   - Makes workflow association explicit and declarative
   - Auto-detected during `bootInteractsWithWorkflows()`
   - Falls back to route-based auto-detection if not present
-  
+
 - Comprehensive tests for WorkflowName attribute functionality
-- Documentation updates in README.md and CLAUDE.md
+- Documentation updates in README.md, CLAUDE.md, and new MIDDLEWARE.md guide
 
 ### Changed
 
 - Updated `InteractsWithWorkflows` trait to check for `WorkflowName` attribute before falling back to route-based detection
+- **WorkflowDefinition**: Added optional `middleware` property (array|Closure|null)
+- **StepDefinition**: Added optional `middleware` property (array|Closure|null)
+- **RouteRegistrar**: Enhanced to resolve and apply middleware with configurable precedence logic
+- **StepBuilder**: Automatically reads `StepMiddleware` attribute from component classes
+- **Config**: Updated middleware documentation to reflect per-workflow/step customization
+
+### Breaking Changes
+
+None - All new middleware properties are optional and fully backward compatible
 
 ## 0.5b - 2025-11-17
 

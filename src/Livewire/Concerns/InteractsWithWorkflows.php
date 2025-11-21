@@ -14,6 +14,13 @@ trait InteractsWithWorkflows
 {
     protected ?string $workflowName = null;
 
+    /**
+     * Track properties that have changed during this request to optimize syncing.
+     *
+     * @var array<string, bool>
+     */
+    protected array $workflowStateDirtyProperties = [];
+
     public function bootInteractsWithWorkflows(): void
     {
         if ($this->workflowName === null) {
@@ -44,6 +51,43 @@ trait InteractsWithWorkflows
         }
     }
 
+    /**
+     * Hook into Livewire's updated lifecycle to proactively sync state
+     * when properties change, ensuring persistence even if dehydration
+     * doesn't complete normally.
+     *
+     * @param  mixed  $value
+     */
+    public function updatedInteractsWithWorkflows(string $propertyName, $value): void
+    {
+        if ($this->workflowName === null) {
+            return;
+        }
+
+        // Check if this property has WorkflowState attribute
+        $reflection = new ReflectionClass($this);
+
+        try {
+            $property = $reflection->getProperty($propertyName);
+            $attributes = $property->getAttributes(WorkflowState::class);
+
+            if (! empty($attributes)) {
+                // Mark property as dirty
+                $this->workflowStateDirtyProperties[$propertyName] = true;
+
+                // Sync this specific property immediately
+                $this->syncSpecificWorkflowProperty($property, $attributes[0]->newInstance());
+            }
+        } catch (\ReflectionException $e) {
+            // Property might be nested (e.g., 'user.name')
+            // In this case, let dehydration handle it
+        }
+    }
+
+    /**
+     * Dehydration hook as a fallback to ensure all state is persisted.
+     * This catches any property changes that weren't tracked by the updated hook.
+     */
     public function dehydrateInteractsWithWorkflows(): void
     {
         $this->syncWorkflowState();
@@ -154,6 +198,32 @@ trait InteractsWithWorkflows
 
             $repository->setState($this->workflowName, $userKey, $stateKey, $value);
         }
+
+        // Clear dirty tracking after full sync
+        $this->workflowStateDirtyProperties = [];
+    }
+
+    /**
+     * Sync a specific property to the workflow state repository.
+     * Used for immediate persistence when properties change.
+     */
+    protected function syncSpecificWorkflowProperty(ReflectionProperty $property, WorkflowState $attribute): void
+    {
+        if (! $this->workflowName) {
+            return;
+        }
+
+        $repository = app(WorkflowStateRepository::class);
+        $userKey = $this->getUserKey();
+
+        $stateKey = $this->getStateKey($property, $attribute);
+        $value = $this->{$property->getName()};
+
+        if ($attribute->encrypt && $value !== null) {
+            $value = Crypt::encrypt($value);
+        }
+
+        $repository->setState($this->workflowName, $userKey, $stateKey, $value);
     }
 
     protected function getWorkflowState(string $key, mixed $default = null): mixed

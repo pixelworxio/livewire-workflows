@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pixelworxio\LivewireWorkflows\Registrar;
 
 use Pixelworxio\LivewireWorkflows\Attributes\StepMiddleware;
+use Pixelworxio\LivewireWorkflows\Attributes\WorkflowStep;
 use Pixelworxio\LivewireWorkflows\Support\StepDefinition;
 
 class StepBuilder
@@ -84,7 +85,9 @@ class StepBuilder
     }
 
     /**
-     * Read middleware from component's StepMiddleware attribute.
+     * Read middleware from component's WorkflowStep or StepMiddleware attribute.
+     *
+     * Checks WorkflowStep first (preferred), then falls back to StepMiddleware.
      *
      * @return array|null
      */
@@ -96,15 +99,24 @@ class StepBuilder
         }
 
         $reflection = new \ReflectionClass($this->component);
-        $attributes = $reflection->getAttributes(StepMiddleware::class);
 
-        if (empty($attributes)) {
-            return null;
+        // Check for WorkflowStep attribute first (preferred)
+        $workflowStepAttributes = $reflection->getAttributes(WorkflowStep::class);
+        if (! empty($workflowStepAttributes)) {
+            $attribute = $workflowStepAttributes[0]->newInstance();
+
+            return ! empty($attribute->middleware) ? $attribute->middleware : null;
         }
 
-        $attribute = $attributes[0]->newInstance();
+        // Fall back to StepMiddleware attribute
+        $stepMiddlewareAttributes = $reflection->getAttributes(StepMiddleware::class);
+        if (! empty($stepMiddlewareAttributes)) {
+            $attribute = $stepMiddlewareAttributes[0]->newInstance();
 
-        return $attribute->middleware;
+            return $attribute->middleware;
+        }
+
+        return null;
     }
 
     public function __call(string $method, array $arguments)

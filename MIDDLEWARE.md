@@ -21,7 +21,7 @@ By default, all workflow routes use the global middleware defined in `config/liv
 
 Livewire Workflows provides three ways to customize middleware:
 
-1. **Attribute-based** (Recommended) - Using `#[StepMiddleware]` attributes on component classes
+1. **Attribute-based** (Recommended) - Using `#[WorkflowStep]` attribute (all-in-one) or separate `#[StepMiddleware]` attributes
 2. **DSL-based** - Using `->middleware()` methods in workflow definitions
 3. **Callable** - Using closures for dynamic middleware resolution
 
@@ -31,16 +31,14 @@ Livewire Workflows provides three ways to customize middleware:
 
 ### Attribute-Based Middleware (Recommended)
 
-The easiest and most declarative way to add middleware is using the `#[StepMiddleware]` attribute:
+The easiest and most declarative way to add middleware is using the `#[WorkflowStep]` attribute, which sets both the workflow name and middleware in one place:
 
 ```php
 use Livewire\Component;
-use Pixelworxio\LivewireWorkflows\Attributes\StepMiddleware;
-use Pixelworxio\LivewireWorkflows\Attributes\WorkflowName;
+use Pixelworxio\LivewireWorkflows\Attributes\WorkflowStep;
 use Pixelworxio\LivewireWorkflows\Livewire\Concerns\InteractsWithWorkflows;
 
-#[WorkflowName('checkout')]
-#[StepMiddleware(['web', 'auth', 'verified'])]
+#[WorkflowStep(name: 'checkout', middleware: ['web', 'auth', 'verified'])]
 class PaymentStep extends Component
 {
     use InteractsWithWorkflows;
@@ -53,6 +51,21 @@ class PaymentStep extends Component
 ```
 
 Now the `/checkout/payment` route requires the user to be authenticated and email-verified.
+
+**Alternative:** You can also use separate attributes if you prefer:
+
+```php
+use Pixelworxio\LivewireWorkflows\Attributes\WorkflowName;
+use Pixelworxio\LivewireWorkflows\Attributes\StepMiddleware;
+
+#[WorkflowName('checkout')]
+#[StepMiddleware(['web', 'auth', 'verified'])]
+class PaymentStep extends Component
+{
+    use InteractsWithWorkflows;
+    // ...
+}
+```
 
 ### DSL-Based Middleware
 

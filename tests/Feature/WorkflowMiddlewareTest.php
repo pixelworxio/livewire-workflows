@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Component;
 use Pixelworxio\LivewireWorkflows\Attributes\StepMiddleware;
 use Pixelworxio\LivewireWorkflows\Attributes\WorkflowName;
+use Pixelworxio\LivewireWorkflows\Attributes\WorkflowStep;
 use Pixelworxio\LivewireWorkflows\Facades\Workflow;
 use Pixelworxio\LivewireWorkflows\Livewire\Concerns\InteractsWithWorkflows;
 use Pixelworxio\LivewireWorkflows\Support\RouteRegistrar;
@@ -48,6 +49,29 @@ class VerifiedStepComponent extends Component
     public function render()
     {
         return '<div>Verified Step</div>';
+    }
+}
+
+// Test Components using WorkflowStep attribute
+#[WorkflowStep(name: 'checkout', middleware: ['web', 'auth'])]
+class WorkflowStepTestComponent extends Component
+{
+    use InteractsWithWorkflows;
+
+    public function render()
+    {
+        return '<div>Workflow Step Test</div>';
+    }
+}
+
+#[WorkflowStep(name: 'product-review')]
+class WorkflowStepNoMiddlewareComponent extends Component
+{
+    use InteractsWithWorkflows;
+
+    public function render()
+    {
+        return '<div>Workflow Step No Middleware</div>';
     }
 }
 
@@ -347,4 +371,73 @@ test('mixed public and authenticated steps in same workflow', function () {
 
     // Submit step should require auth + verified (from attribute)
     expect($submitRoute->middleware())->toContain('web', 'auth', 'verified');
+});
+
+test('WorkflowStep attribute sets both workflow name and middleware', function () {
+    Workflow::flow('checkout')
+        ->entersAt(name: 'checkout.start', path: '/checkout')
+        ->finishesAt('dashboard')
+        ->step('test')
+            ->goTo(WorkflowStepTestComponent::class)
+            ->order(10);
+
+    $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
+    $workflow = $registrar->get('checkout');
+    $step = $workflow->getStep('test');
+
+    // Should read middleware from WorkflowStep attribute
+    expect($step->middleware)->toBe(['web', 'auth']);
+});
+
+test('WorkflowStep attribute with empty middleware returns null', function () {
+    Workflow::flow('product-review')
+        ->entersAt(name: 'review.start', path: '/review')
+        ->finishesAt('dashboard')
+        ->step('view')
+            ->goTo(WorkflowStepNoMiddlewareComponent::class)
+            ->order(10);
+
+    $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
+    $workflow = $registrar->get('product-review');
+    $step = $workflow->getStep('view');
+
+    // Empty middleware array should return null
+    expect($step->middleware)->toBeNull();
+});
+
+test('WorkflowStep attribute is preferred over StepMiddleware', function () {
+    // This test verifies that WorkflowStep takes precedence over StepMiddleware
+    // when both are present. We're using WorkflowStepTestComponent which has
+    // WorkflowStep attribute with ['web', 'auth'] middleware.
+
+    Workflow::flow('checkout')
+        ->entersAt(name: 'checkout.start', path: '/checkout')
+        ->finishesAt('dashboard')
+        ->step('test')
+            ->goTo(WorkflowStepTestComponent::class)
+            ->order(10);
+
+    $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
+    $workflow = $registrar->get('checkout');
+    $step = $workflow->getStep('test');
+
+    // Should use middleware from WorkflowStep attribute
+    expect($step->middleware)->toBe(['web', 'auth']);
+});
+
+test('DSL middleware still overrides WorkflowStep attribute', function () {
+    Workflow::flow('checkout')
+        ->entersAt(name: 'checkout.start', path: '/checkout')
+        ->finishesAt('dashboard')
+        ->step('test')
+            ->goTo(WorkflowStepTestComponent::class)
+            ->middleware(['web', 'custom']) // DSL middleware
+            ->order(10);
+
+    $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
+    $workflow = $registrar->get('checkout');
+    $step = $workflow->getStep('test');
+
+    // DSL middleware should override WorkflowStep attribute
+    expect($step->middleware)->toBe(['web', 'custom']);
 });

@@ -17,8 +17,8 @@ All notable changes to `livewire-workflows` will be documented in this file.
 ### Added
 
 - **Selective Auth Middleware**: Comprehensive middleware customization at workflow and step levels
-  - **StepMiddleware Attribute** (Preferred): `#[StepMiddleware(['web', 'auth'])]` for declarative step middleware
-  - **WorkflowMiddleware Attribute**: `#[WorkflowMiddleware(['web', 'auth'])]` for workflow-level middleware
+  - **WorkflowStep Attribute** (Preferred): `#[WorkflowStep(name: 'workflow', middleware: ['web', 'auth'])]` - all-in-one attribute
+  - **StepMiddleware Attribute**: `#[StepMiddleware(['web', 'auth'])]` for declarative step middleware only
   - **DSL Middleware Methods**: `->middleware(['web', 'auth'])` on FlowBuilder and StepBuilder
   - **Callable Middleware**: Support for dynamic middleware resolution: `->middleware(fn() => ['web', 'auth'])`
   - **Middleware Precedence Configuration**: New `middleware_precedence` config option ('override' | 'merge')
@@ -26,7 +26,7 @@ All notable changes to `livewire-workflows` will be documented in this file.
     - **Merge mode**: Combines all middleware layers (deduplicated)
   - Enables mixed public/authenticated steps in same workflow
   - Fine-grained access control per step
-  - 13 comprehensive tests covering all middleware scenarios
+  - 17 comprehensive tests covering all middleware scenarios
 
 - **WorkflowName Attribute**: New `#[WorkflowName]` attribute for declaring workflow names on Livewire component classes
   - Eliminates boilerplate of manually setting `$workflowName` property
@@ -39,16 +39,31 @@ All notable changes to `livewire-workflows` will be documented in this file.
 
 ### Changed
 
-- Updated `InteractsWithWorkflows` trait to check for `WorkflowName` attribute before falling back to route-based detection
+- Updated `InteractsWithWorkflows` trait to check for `WorkflowStep` and `WorkflowName` attributes before falling back to route-based detection
 - **WorkflowDefinition**: Added optional `middleware` property (array|Closure|null)
 - **StepDefinition**: Added optional `middleware` property (array|Closure|null)
 - **RouteRegistrar**: Enhanced to resolve and apply middleware with configurable precedence logic
-- **StepBuilder**: Automatically reads `StepMiddleware` attribute from component classes
+- **StepBuilder**: Automatically reads `WorkflowStep` or `StepMiddleware` attributes from component classes
 - **Config**: Updated middleware documentation to reflect per-workflow/step customization
+- **WorkflowStep Attribute** (Breaking): Signature changed from `WorkflowStep($flow, $key, $order)` to `WorkflowStep($name, $middleware = [])`
+  - `$name` parameter now sets the workflow name (previously `$flow`)
+  - Removed `$key` and `$order` parameters (these were not used for auto-registration)
+  - Added optional `$middleware` parameter for setting step middleware
+  - Now combines `WorkflowName` and `StepMiddleware` functionality into one attribute
+  - Attribute precedence: `WorkflowStep` > `WorkflowName` + `StepMiddleware`
+
+### Removed
+
+- **WorkflowMiddleware Attribute**: Removed because workflow-level middleware should only be set via DSL `->middleware()` method, not from step component classes
 
 ### Breaking Changes
 
-None - All new middleware properties are optional and fully backward compatible
+- **WorkflowStep attribute signature changed**: Update from `#[WorkflowStep(flow: 'name', key: 'step', order: 10)]` to `#[WorkflowStep(name: 'workflow', middleware: ['web', 'auth'])]`
+  - The `flow` parameter is now `name` and sets the workflow name
+  - The `key` and `order` parameters have been removed
+  - Optional `middleware` parameter added for step-level middleware
+  - **Migration**: If you were using the old WorkflowStep attribute, update to the new signature or use `WorkflowName` + `StepMiddleware` attributes instead
+- **WorkflowMiddleware attribute removed**: Use `->middleware()` method on `FlowBuilder` in your workflow DSL instead
 
 ## 0.5b - 2025-11-17
 

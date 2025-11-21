@@ -293,21 +293,47 @@ Use `unlessPasses(Guard::class)`: "Show step UNLESS guard passes."
 
 ### State Management
 
-Persist data across workflow steps:
+#### Setting Workflow Name
+
+Use the `#[WorkflowName]` attribute to explicitly declare your component's workflow:
 
 ```php
-use Pixelworxio\LivewireWorkflows\Attributes\WorkflowState;
+use Pixelworxio\LivewireWorkflows\Attributes\WorkflowName;
 
+#[WorkflowName('checkout')]
 class CheckoutShipping extends Component
 {
     use InteractsWithWorkflows;
-    
+
+    // No need to set protected ?string $workflowName = 'checkout';
+}
+```
+
+**Benefits:**
+- ✅ Eliminates boilerplate
+- ✅ Makes workflow association explicit
+- ✅ Auto-detected during component boot
+- ✅ Falls back to route-based detection if not present
+
+#### Persisting State
+
+Persist data across workflow steps with the `#[WorkflowState]` attribute:
+
+```php
+use Pixelworxio\LivewireWorkflows\Attributes\WorkflowName;
+use Pixelworxio\LivewireWorkflows\Attributes\WorkflowState;
+
+#[WorkflowName('checkout')]
+class CheckoutShipping extends Component
+{
+    use InteractsWithWorkflows;
+
     #[WorkflowState]
     public ?string $address = null;
-    
+
     #[WorkflowState(encrypt: true)]
     public ?string $creditCard = null;
-    
+
     #[WorkflowState(namespace: 'shipping')]
     public ?string $method = null;
 }

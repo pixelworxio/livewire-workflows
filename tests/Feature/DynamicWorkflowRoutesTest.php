@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Livewire\Component;
-use Livewire\Livewire;
 use Pixelworxio\LivewireWorkflows\Facades\Workflow;
 use Pixelworxio\LivewireWorkflows\Livewire\Concerns\InteractsWithWorkflows;
 
@@ -14,6 +13,7 @@ class DynamicStepOneComponent extends Component
     use InteractsWithWorkflows;
 
     public $user;
+
     public $product;
 
     public function mount($user = null, $product = null)
@@ -33,6 +33,7 @@ class DynamicStepTwoComponent extends Component
     use InteractsWithWorkflows;
 
     public $user;
+
     public $product;
 
     public function mount($user = null, $product = null)
@@ -58,8 +59,11 @@ class DynamicStepOneGuard implements \Pixelworxio\LivewireWorkflows\Contracts\Gu
     }
 
     public function onEnter(\Illuminate\Http\Request $request): void {}
+
     public function onExit(\Illuminate\Http\Request $request): void {}
+
     public function onPass(\Illuminate\Http\Request $request): void {}
+
     public function onFail(\Illuminate\Http\Request $request): void {}
 }
 
@@ -73,8 +77,11 @@ class DynamicStepTwoGuard implements \Pixelworxio\LivewireWorkflows\Contracts\Gu
     }
 
     public function onEnter(\Illuminate\Http\Request $request): void {}
+
     public function onExit(\Illuminate\Http\Request $request): void {}
+
     public function onPass(\Illuminate\Http\Request $request): void {}
+
     public function onFail(\Illuminate\Http\Request $request): void {}
 }
 

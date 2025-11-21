@@ -15,7 +15,10 @@ class PassingGuard implements GuardContract
     }
 
     public function onEnter(Request $request): void {}
+
     public function onExit(Request $request): void {}
+
     public function onPass(Request $request): void {}
+
     public function onFail(Request $request): void {}
 }

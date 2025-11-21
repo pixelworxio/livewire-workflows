@@ -6,9 +6,9 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use Pixelworxio\LivewireWorkflows\Facades\Workflow;
+use Tests\Support\TestComponentWithoutAttribute;
 use Tests\Support\TestComponentWithoutWorkflowName;
 use Tests\Support\TestComponentWithProtectedProperty;
-use Tests\Support\TestComponentWithoutAttribute;
 
 beforeEach(function () {
     app(Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class)->clear();

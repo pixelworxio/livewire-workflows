@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pixelworxio\LivewireWorkflows\Livewire\Concerns;
 
 use Illuminate\Support\Facades\Crypt;
+use Pixelworxio\LivewireWorkflows\Attributes\WorkflowName;
 use Pixelworxio\LivewireWorkflows\Attributes\WorkflowState;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use ReflectionClass;
@@ -24,6 +25,18 @@ trait InteractsWithWorkflows
     public function bootInteractsWithWorkflows(): void
     {
         if ($this->workflowName === null) {
+            // First, check if the component class has a WorkflowName attribute
+            $reflection = new ReflectionClass($this);
+            $attributes = $reflection->getAttributes(WorkflowName::class);
+
+            if (! empty($attributes)) {
+                $attribute = $attributes[0]->newInstance();
+                $this->workflowName = $attribute->name;
+
+                return;
+            }
+
+            // Fall back to auto-detection from route name
             $routeName = request()->route()?->getName();
 
             if ($routeName && str_contains($routeName, '.')) {

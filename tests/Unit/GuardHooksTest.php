@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use Pixelworxio\LivewireWorkflows\Facades\Workflow;
 use Pixelworxio\LivewireWorkflows\Support\WorkflowEngine;
 use Tests\Support\TrackableGuard;
@@ -156,6 +155,7 @@ test('onEnter and onExit are called in correct order when advancing between step
         }
 
         public function onPass(Request $request): void {}
+
         public function onFail(Request $request): void {}
     };
 
@@ -224,7 +224,9 @@ test('hooks are called with the correct request parameter', function () {
         }
 
         public function onExit(Request $request): void {}
+
         public function onPass(Request $request): void {}
+
         public function onFail(Request $request): void {}
     };
 

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Pixelworxio\LivewireWorkflows\Facades\Workflow;
-use Tests\Support\PassingGuard;
 use Tests\Support\FailingGuard;
+use Tests\Support\PassingGuard;
 use Tests\Support\TestInvokableController;
 use Tests\Support\TestMethodController;
 use Tests\Support\TestStepOneComponent;

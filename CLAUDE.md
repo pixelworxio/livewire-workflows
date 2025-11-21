@@ -108,6 +108,7 @@ livewire-workflows/
 ├── resources/                          # Package resources (images, etc.)
 ├── src/
 │   ├── Attributes/                     # PHP 8 Attributes
+│   │   ├── WorkflowName.php           # Workflow name declaration attribute
 │   │   ├── WorkflowState.php          # State persistence attribute
 │   │   └── WorkflowStep.php           # Step metadata attribute
 │   ├── Commands/                       # Artisan commands
@@ -249,7 +250,7 @@ livewire-workflows/
 **Purpose**: Core trait for Livewire components
 
 **Lifecycle Hooks**:
-- `bootInteractsWithWorkflows()` - Auto-detect workflow name from route
+- `bootInteractsWithWorkflows()` - Read WorkflowName attribute (v1.2+) or auto-detect workflow name from route
 - `mountInteractsWithWorkflows()` - Hydrate state from repository
 - `updatedInteractsWithWorkflows(string $propertyName, mixed $value)` - Proactively sync state when properties change (v1.1+)
 - `dehydrateInteractsWithWorkflows()` - Sync state to repository as fallback
@@ -335,6 +336,51 @@ This approach addresses edge cases where:
 
 #### NullStateRepository
 - No-op implementation for stateless workflows
+
+### 9. Attributes
+
+#### WorkflowName Attribute (`src/Attributes/WorkflowName.php`)
+
+**Purpose**: Declare the workflow name on a Livewire component class
+
+**Usage**:
+```php
+use Pixelworxio\LivewireWorkflows\Attributes\WorkflowName;
+
+#[WorkflowName('onboarding')]
+class VerifyEmailStep extends Component
+{
+    use InteractsWithWorkflows;
+    // No need to set protected ?string $workflowName = 'onboarding';
+}
+```
+
+**Benefits**:
+- Eliminates boilerplate of setting `$workflowName` property
+- Makes workflow association explicit and declarative
+- Auto-detected during `bootInteractsWithWorkflows()`
+- Falls back to route-based auto-detection if not present
+
+**When to Use**:
+- When you want explicit workflow association
+- When component might be used outside workflow routes
+- When you want to avoid route-based auto-detection
+
+#### WorkflowState Attribute (`src/Attributes/WorkflowState.php`)
+
+**Purpose**: Mark component properties for automatic state persistence
+
+**Parameters**:
+- `encrypt` (bool) - Whether to encrypt the value in storage (default: false)
+- `namespace` (string|null) - Optional namespace for grouping state keys (default: null)
+
+**Usage**: See "State Management with Attributes" section above
+
+#### WorkflowStep Attribute (`src/Attributes/WorkflowStep.php`)
+
+**Purpose**: Mark Livewire components as workflow steps (for validation/scanning)
+
+**Note**: Not used for auto-registration (DSL is source of truth), but can be used by the `workflows:scan` command for validation
 
 ---
 
@@ -725,15 +771,30 @@ Workflow::flow('checkout')
 
 ### 6. State Management with Attributes
 
-**Automatic Persistence** (Enhanced in v1.1):
+**Setting Workflow Name** (v1.2+):
 ```php
-use Pixelworxio\LivewireWorkflows\Attributes\WorkflowState;
+use Pixelworxio\LivewireWorkflows\Attributes\WorkflowName;
 
+#[WorkflowName('onboarding')]
 class ProfileStep extends Component
 {
     use InteractsWithWorkflows;
 
-    protected ?string $workflowName = 'onboarding';
+    // No need to set protected ?string $workflowName = 'onboarding';
+}
+```
+
+The `#[WorkflowName]` attribute eliminates the need to manually set `$workflowName` property. The trait automatically reads the attribute during boot. If no attribute is present, it falls back to auto-detection from the route name.
+
+**Automatic Persistence** (Enhanced in v1.1):
+```php
+use Pixelworxio\LivewireWorkflows\Attributes\WorkflowName;
+use Pixelworxio\LivewireWorkflows\Attributes\WorkflowState;
+
+#[WorkflowName('onboarding')]
+class ProfileStep extends Component
+{
+    use InteractsWithWorkflows;
 
     #[WorkflowState]
     public ?string $email = null;

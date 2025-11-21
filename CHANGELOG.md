@@ -2,6 +2,16 @@
 
 All notable changes to `livewire-workflows` will be documented in this file.
 
+## 0.5.1b - 2025-11-21
+
+### What's Changed
+
+* Update README.md by @whoisthisstud in https://github.com/pixelworxio/livewire-workflows/pull/9
+* Fix workflow trait property dehydration issue by @whoisthisstud in https://github.com/pixelworxio/livewire-workflows/pull/11
+* feat: Add WorkflowName attribute for explicit workflow declaration by @whoisthisstud in https://github.com/pixelworxio/livewire-workflows/pull/12
+
+**Full Changelog**: https://github.com/pixelworxio/livewire-workflows/compare/0.5b...0.5.1b
+
 ## [Unreleased]
 
 ### Added
@@ -11,6 +21,7 @@ All notable changes to `livewire-workflows` will be documented in this file.
   - Makes workflow association explicit and declarative
   - Auto-detected during `bootInteractsWithWorkflows()`
   - Falls back to route-based auto-detection if not present
+  
 - Comprehensive tests for WorkflowName attribute functionality
 - Documentation updates in README.md and CLAUDE.md
 

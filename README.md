@@ -26,6 +26,8 @@ Workflow::flow('onboarding')
 
 That's it. No manual routes. No state management headaches.
 
+View the testbench repo, https://github.com/pixelworxio/livewire-workflows-testbench, for examples of how this package can help you with your project.
+
 ---
 
 ## ✨ Why Livewire Workflows?

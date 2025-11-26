@@ -76,7 +76,6 @@ use Pixelworxio\LivewireWorkflows\Facades\Workflow;
 Workflow::flow('onboarding')
     ->entersAt(name: 'onboarding.start', path: '/onboarding')
     ->finishesAt('dashboard')
-    ->historyMode('stack')
     ->step('verify-email')
         ->goTo(\App\Livewire\Onboarding\VerifyEmail::class)
         ->unlessPasses(\App\Guards\EmailVerifiedGuard::class)
@@ -147,7 +146,7 @@ class VerifyEmail extends Component
     {
         // ... handle your logic
         
-        $this->continue('onboarding');
+        $this->continue('onboarding'); // workflow name is optional when using WorkflowStep attribute
     }
 
     public function render()
@@ -284,15 +283,6 @@ Use `unlessPasses(Guard::class)`: "Show step UNLESS guard passes."
 4. User completes step, calls `$this->continue('onboarding')`
 5. Re-evaluates from entry → next unmet step or finish
 
-### History Modes
-
-```php
-->historyMode('none')   // No tracking (default)
-->historyMode('stack')  // Full history stack for back navigation
-```
-
-**Stack Mode:** Enables `$this->back()` to return to previous steps.
-
 ---
 
 ## 🧩 Advanced Features
@@ -301,7 +291,7 @@ Use `unlessPasses(Guard::class)`: "Show step UNLESS guard passes."
 
 #### Setting Workflow Name
 
-Use the `#[WorkflowName]` attribute to explicitly declare your component's workflow:
+Use the `#[WorkflowName]` attribute to explicitly declare your component's workflow, when not using the WorkflowStep attribute:
 
 ```php
 use Pixelworxio\LivewireWorkflows\Attributes\WorkflowName;
@@ -311,7 +301,7 @@ class CheckoutShipping extends Component
 {
     use InteractsWithWorkflows;
 
-    // No need to set protected ?string $workflowName = 'checkout';
+    // protected ?string $workflowName = 'checkout'; // No need to set 
 }
 ```
 
@@ -416,7 +406,6 @@ php artisan workflows:scan
 Workflow::flow('checkout')
     ->entersAt(name: 'checkout.start', path: '/checkout')
     ->finishesAt('orders.confirmation')
-    ->historyMode('stack')
     ->step('cart')
         ->goTo(ReviewCart::class)
         ->unlessPasses(CartNotEmptyGuard::class)
@@ -511,7 +500,6 @@ return [
 Workflow::flow(string $name)
     ->entersAt(name: string, path: string)
     ->finishesAt(string $routeName)
-    ->historyMode('none' | 'stack')
     ->step(string $key)
         ->goTo(string $componentClass)
         ->unlessPasses(string $guardClass)
@@ -526,6 +514,17 @@ use InteractsWithWorkflows;
 $this->continue(string $flow): RedirectResponse
 $this->back(string $flow, string $currentKey): ?RedirectResponse
 $this->syncState(): void  // Manually persist state
+```
+
+Note: When using the `#[WorkflowStep]` attribute, the `$flow` and `$currentKey` properties are optional
+
+```
+#[WorkflowStep(flow: 'my-flow', key: 'current-step', middleware: ['auth'])]
+
+use InteractsWithWorkflows;
+
+$this->continue(): RedirectResponse
+$this->back(): ?RedirectResponse
 ```
 
 ### Helper Functions

@@ -2,6 +2,15 @@
 
 All notable changes to `livewire-workflows` will be documented in this file.
 
+## 0.5.2b - 2025-11-26
+
+### What's Changed
+
+* feat: Add selective auth middleware to workflows by @whoisthisstud in https://github.com/pixelworxio/livewire-workflows/pull/13
+* Bump actions/checkout from 5 to 6 by @dependabot[bot] in https://github.com/pixelworxio/livewire-workflows/pull/15
+
+**Full Changelog**: https://github.com/pixelworxio/livewire-workflows/compare/0.5.1b...0.5.2b
+
 ## 0.5.1b - 2025-11-21
 
 ### What's Changed
@@ -17,6 +26,7 @@ All notable changes to `livewire-workflows` will be documented in this file.
 ### Added
 
 - **Selective Auth Middleware**: Comprehensive middleware customization at workflow and step levels
+  
   - **WorkflowStep Attribute** (Preferred): `#[WorkflowStep(flow: 'checkout', key: 'payment', middleware: ['web', 'auth'])]` - all-in-one attribute
   - **StepMiddleware Attribute**: `#[StepMiddleware(['web', 'auth'])]` for declarative step middleware only
   - **DSL Middleware Methods**: `->middleware(['web', 'auth'])` on FlowBuilder and StepBuilder
@@ -24,18 +34,22 @@ All notable changes to `livewire-workflows` will be documented in this file.
   - **Middleware Precedence Configuration**: New `middleware_precedence` config option ('override' | 'merge')
     - **Override mode** (default): Step > Workflow > Global
     - **Merge mode**: Combines all middleware layers (deduplicated)
+    
   - Enables mixed public/authenticated steps in same workflow
   - Fine-grained access control per step
   - 17 comprehensive tests covering all middleware scenarios
-
+  
 - **WorkflowName Attribute**: New `#[WorkflowName]` attribute for declaring workflow names on Livewire component classes
+  
   - Eliminates boilerplate of manually setting `$workflowName` property
   - Makes workflow association explicit and declarative
   - Auto-detected during `bootInteractsWithWorkflows()`
   - Falls back to route-based auto-detection if not present
-
+  
 - Comprehensive tests for WorkflowName attribute functionality
+  
 - Documentation updates in README.md, CLAUDE.md, and new MIDDLEWARE.md guide
+  
 
 ### Changed
 
@@ -52,6 +66,7 @@ All notable changes to `livewire-workflows` will be documented in this file.
   - Added optional `$middleware` parameter for setting step middleware
   - Now combines `WorkflowName` and `StepMiddleware` functionality into one attribute
   - Attribute precedence: `WorkflowStep` > `WorkflowName` + `StepMiddleware`
+  
 
 ### Removed
 
@@ -66,6 +81,7 @@ All notable changes to `livewire-workflows` will be documented in this file.
 - **WorkflowStep attribute enhanced**: The `WorkflowStep` attribute now accepts an optional third parameter for middleware: `#[WorkflowStep(flow: 'checkout', key: 'payment', middleware: ['web', 'auth'])]`
   - This is **not a breaking change** - existing usage without the middleware parameter continues to work
   - The attribute can now be used as a "god attribute" combining workflow name, step identification, and middleware configuration
+  
 
 ## 0.5b - 2025-11-17
 

@@ -2,6 +2,14 @@
 
 All notable changes to `livewire-workflows` will be documented in this file.
 
+## 0.5.3b - 2025-12-21
+
+### What's Changed
+
+* feat: Improve navigation helpers to not require repeated flow info by @whoisthisstud in https://github.com/pixelworxio/livewire-workflows/pull/14
+
+**Full Changelog**: https://github.com/pixelworxio/livewire-workflows/compare/0.5.2b...0.5.3b
+
 ## 0.5.2b - 2025-11-26
 
 ### What's Changed
@@ -28,16 +36,24 @@ All notable changes to `livewire-workflows` will be documented in this file.
 - **Selective Auth Middleware**: Comprehensive middleware customization at workflow and step levels
   
   - **WorkflowStep Attribute** (Preferred): `#[WorkflowStep(flow: 'checkout', key: 'payment', middleware: ['web', 'auth'])]` - all-in-one attribute
+    
   - **StepMiddleware Attribute**: `#[StepMiddleware(['web', 'auth'])]` for declarative step middleware only
+    
   - **DSL Middleware Methods**: `->middleware(['web', 'auth'])` on FlowBuilder and StepBuilder
+    
   - **Callable Middleware**: Support for dynamic middleware resolution: `->middleware(fn() => ['web', 'auth'])`
+    
   - **Middleware Precedence Configuration**: New `middleware_precedence` config option ('override' | 'merge')
+    
     - **Override mode** (default): Step > Workflow > Global
     - **Merge mode**: Combines all middleware layers (deduplicated)
     
   - Enables mixed public/authenticated steps in same workflow
+    
   - Fine-grained access control per step
+    
   - 17 comprehensive tests covering all middleware scenarios
+    
   
 - **WorkflowName Attribute**: New `#[WorkflowName]` attribute for declaring workflow names on Livewire component classes
   

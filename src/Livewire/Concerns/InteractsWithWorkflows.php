@@ -16,6 +16,8 @@ trait InteractsWithWorkflows
 {
     protected ?string $workflowName = null;
 
+    protected ?string $stepKey = null;
+
     /**
      * Track properties that have changed during this request to optimize syncing.
      *
@@ -33,6 +35,7 @@ trait InteractsWithWorkflows
             if (! empty($workflowStepAttributes)) {
                 $attribute = $workflowStepAttributes[0]->newInstance();
                 $this->workflowName = $attribute->flow;
+                $this->stepKey = $attribute->key;
 
                 return;
             }
@@ -61,6 +64,22 @@ trait InteractsWithWorkflows
                         }
                     } catch (\Throwable $e) {
                         // Skip
+                    }
+                }
+            }
+        }
+
+        // Detect step key from route if not already set
+        if ($this->stepKey === null) {
+            $routeName = request()->route()?->getName();
+
+            if ($routeName && str_contains($routeName, '.')) {
+                $parts = explode('.', $routeName);
+                if (count($parts) >= 2) {
+                    // The step key is everything after the first dot
+                    array_shift($parts); // Remove the workflow name
+                    if (! empty($parts)) {
+                        $this->stepKey = implode('.', $parts);
                     }
                 }
             }
@@ -127,8 +146,26 @@ trait InteractsWithWorkflows
         return $this->workflowName;
     }
 
-    public function continue(string $flow): void
+    public function setStepKey(string $stepKey): void
     {
+        $this->stepKey = $stepKey;
+    }
+
+    public function getStepKey(): ?string
+    {
+        return $this->stepKey;
+    }
+
+    public function continue(?string $flow = null): void
+    {
+        $flow = $flow ?? $this->workflowName;
+
+        if ($flow === null) {
+            throw new \InvalidArgumentException(
+                'Workflow name must be provided or set via WorkflowName/WorkflowStep attribute or route detection.'
+            );
+        }
+
         $this->syncWorkflowState();
         $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
         $workflow = $registrar->get($flow);
@@ -137,8 +174,23 @@ trait InteractsWithWorkflows
         $this->redirect(route($workflow->entryRouteName, $routeParameters), navigate: true);
     }
 
-    public function back(string $flow, string $currentKey): void
+    public function back(?string $flow = null, ?string $currentKey = null): void
     {
+        $flow = $flow ?? $this->workflowName;
+        $currentKey = $currentKey ?? $this->stepKey;
+
+        if ($flow === null) {
+            throw new \InvalidArgumentException(
+                'Workflow name must be provided or set via WorkflowName/WorkflowStep attribute or route detection.'
+            );
+        }
+
+        if ($currentKey === null) {
+            throw new \InvalidArgumentException(
+                'Current step key must be provided or set via WorkflowStep attribute or route detection.'
+            );
+        }
+
         $this->syncWorkflowState();
         $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
         $resolver = app(\Pixelworxio\LivewireWorkflows\Support\WorkflowResolver::class);

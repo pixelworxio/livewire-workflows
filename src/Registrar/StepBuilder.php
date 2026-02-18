@@ -54,7 +54,6 @@ class StepBuilder
      * Set middleware for this step.
      *
      * @param  array|\Closure  $middleware  Array of middleware or a closure that returns middleware
-     * @return static
      */
     public function middleware(array|\Closure $middleware): static
     {
@@ -88,8 +87,6 @@ class StepBuilder
      * Read middleware from component's WorkflowStep or StepMiddleware attribute.
      *
      * Checks WorkflowStep first (preferred), then falls back to StepMiddleware.
-     *
-     * @return array|null
      */
     protected function readMiddlewareFromAttribute(): ?array
     {

@@ -69,7 +69,6 @@ class FlowBuilder
      * Set middleware for this workflow.
      *
      * @param  array|\Closure  $middleware  Array of middleware or a closure that returns middleware
-     * @return static
      */
     public function middleware(array|\Closure $middleware): static
     {

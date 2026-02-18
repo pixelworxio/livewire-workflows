@@ -79,8 +79,8 @@ class WorkflowsInstallCommand extends Command
         if (File::exists($configPath)) {
             $config = File::get($configPath);
             $config = str_replace(
-                "'repository' => 'session'",
-                "'repository' => 'eloquent'",
+                "'repository' => env('WORKFLOWS_REPOSITORY', 'session')",
+                "'repository' => env('WORKFLOWS_REPOSITORY', 'eloquent')",
                 $config
             );
             File::put($configPath, $config);

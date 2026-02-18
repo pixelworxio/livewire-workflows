@@ -2,6 +2,16 @@
 
 All notable changes to `livewire-workflows` will be documented in this file.
 
+## 0.5.4.b - 2026-02-18
+
+### What's Changed
+
+* Bump dependabot/fetch-metadata from 2.4.0 to 2.5.0 by @dependabot[bot] in https://github.com/pixelworxio/livewire-workflows/pull/16
+* Certify Livewire v4 support and update documentation by @whoisthisstud in https://github.com/pixelworxio/livewire-workflows/pull/17
+* Add more tests by @whoisthisstud in https://github.com/pixelworxio/livewire-workflows/pull/18
+
+**Full Changelog**: https://github.com/pixelworxio/livewire-workflows/compare/0.5.3b...0.5.4.b
+
 ## 0.6.0b - 2026-02-17
 
 ### Added

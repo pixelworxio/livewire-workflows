@@ -104,9 +104,6 @@ class RouteRegistrar
 
     /**
      * Evaluate middleware if it's a closure.
-     *
-     * @param  array|\Closure|null  $middleware
-     * @return array|null
      */
     protected function evaluateMiddleware(array|\Closure|null $middleware): ?array
     {

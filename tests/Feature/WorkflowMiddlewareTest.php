@@ -81,8 +81,8 @@ test('workflow can have custom middleware via DSL', function () {
         ->entersAt(name: 'admin.start', path: '/admin')
         ->finishesAt('dashboard')
         ->step('settings')
-            ->goTo(PublicStepComponent::class)
-            ->order(10);
+        ->goTo(PublicStepComponent::class)
+        ->order(10);
 
     $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
     $workflow = $registrar->get('admin-panel');
@@ -95,9 +95,9 @@ test('step can have custom middleware via DSL', function () {
         ->entersAt(name: 'checkout.start', path: '/checkout')
         ->finishesAt('dashboard')
         ->step('payment')
-            ->goTo(PublicStepComponent::class)
-            ->middleware(['web', 'auth', 'verified'])
-            ->order(10);
+        ->goTo(PublicStepComponent::class)
+        ->middleware(['web', 'auth', 'verified'])
+        ->order(10);
 
     $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
     $workflow = $registrar->get('checkout');
@@ -111,8 +111,8 @@ test('step reads middleware from StepMiddleware attribute', function () {
         ->entersAt(name: 'checkout.start', path: '/checkout')
         ->finishesAt('dashboard')
         ->step('payment')
-            ->goTo(AuthRequiredStepComponent::class)
-            ->order(10);
+        ->goTo(AuthRequiredStepComponent::class)
+        ->order(10);
 
     $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
     $workflow = $registrar->get('checkout');
@@ -126,9 +126,9 @@ test('DSL middleware overrides attribute middleware', function () {
         ->entersAt(name: 'checkout.start', path: '/checkout')
         ->finishesAt('dashboard')
         ->step('payment')
-            ->goTo(AuthRequiredStepComponent::class)
-            ->middleware(['web', 'custom'])
-            ->order(10);
+        ->goTo(AuthRequiredStepComponent::class)
+        ->middleware(['web', 'custom'])
+        ->order(10);
 
     $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
     $workflow = $registrar->get('checkout');
@@ -144,8 +144,8 @@ test('workflow supports callable middleware', function () {
         ->entersAt(name: 'dynamic.start', path: '/dynamic')
         ->finishesAt('dashboard')
         ->step('step1')
-            ->goTo(PublicStepComponent::class)
-            ->order(10);
+        ->goTo(PublicStepComponent::class)
+        ->order(10);
 
     $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
     $workflow = $registrar->get('dynamic-auth');
@@ -158,9 +158,9 @@ test('step supports callable middleware', function () {
         ->entersAt(name: 'checkout.start', path: '/checkout')
         ->finishesAt('dashboard')
         ->step('payment')
-            ->goTo(PublicStepComponent::class)
-            ->middleware(fn () => ['web', 'auth'])
-            ->order(10);
+        ->goTo(PublicStepComponent::class)
+        ->middleware(fn () => ['web', 'auth'])
+        ->order(10);
 
     $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
     $workflow = $registrar->get('checkout');
@@ -180,12 +180,12 @@ test('routes are registered with correct middleware in override mode', function 
         ->entersAt(name: 'checkout.start', path: '/checkout')
         ->finishesAt('dashboard')
         ->step('public-view')
-            ->goTo(PublicStepComponent::class)
-            ->order(10)
+        ->goTo(PublicStepComponent::class)
+        ->order(10)
         ->step('payment')
-            ->goTo(PublicStepComponent::class)
-            ->middleware(['web', 'auth', 'verified'])
-            ->order(20);
+        ->goTo(PublicStepComponent::class)
+        ->middleware(['web', 'auth', 'verified'])
+        ->order(20);
 
     app(RouteRegistrar::class)->register();
     app('router')->getRoutes()->refreshNameLookups();
@@ -215,9 +215,9 @@ test('routes are registered with correct middleware in merge mode', function () 
         ->entersAt(name: 'checkout.start', path: '/checkout')
         ->finishesAt('dashboard')
         ->step('payment')
-            ->goTo(PublicStepComponent::class)
-            ->middleware(['verified'])
-            ->order(10);
+        ->goTo(PublicStepComponent::class)
+        ->middleware(['verified'])
+        ->order(10);
 
     app(RouteRegistrar::class)->register();
     app('router')->getRoutes()->refreshNameLookups();
@@ -238,8 +238,8 @@ test('routes use global middleware when no workflow or step middleware is define
         ->entersAt(name: 'simple.start', path: '/simple')
         ->finishesAt('dashboard')
         ->step('step1')
-            ->goTo(PublicStepComponent::class)
-            ->order(10);
+        ->goTo(PublicStepComponent::class)
+        ->order(10);
 
     app(RouteRegistrar::class)->register();
     app('router')->getRoutes()->refreshNameLookups();
@@ -261,8 +261,8 @@ test('callable middleware is evaluated at route registration', function () {
         ->entersAt(name: 'dynamic.start', path: '/dynamic')
         ->finishesAt('dashboard')
         ->step('step1')
-            ->goTo(PublicStepComponent::class)
-            ->order(10);
+        ->goTo(PublicStepComponent::class)
+        ->order(10);
 
     app(RouteRegistrar::class)->register();
     app('router')->getRoutes()->refreshNameLookups();
@@ -283,12 +283,12 @@ test('middleware precedence respects step > workflow > global in override mode',
         ->entersAt(name: 'precedence.start', path: '/precedence')
         ->finishesAt('dashboard')
         ->step('no-step-middleware')
-            ->goTo(PublicStepComponent::class)
-            ->order(10)
+        ->goTo(PublicStepComponent::class)
+        ->order(10)
         ->step('with-step-middleware')
-            ->goTo(PublicStepComponent::class)
-            ->middleware(['step-middleware'])
-            ->order(20);
+        ->goTo(PublicStepComponent::class)
+        ->middleware(['step-middleware'])
+        ->order(20);
 
     app(RouteRegistrar::class)->register();
     app('router')->getRoutes()->refreshNameLookups();
@@ -317,9 +317,9 @@ test('merge mode combines and deduplicates middleware', function () {
         ->entersAt(name: 'merge.start', path: '/merge')
         ->finishesAt('dashboard')
         ->step('step1')
-            ->goTo(PublicStepComponent::class)
-            ->middleware(['verified', 'shared'])
-            ->order(10);
+        ->goTo(PublicStepComponent::class)
+        ->middleware(['verified', 'shared'])
+        ->order(10);
 
     app(RouteRegistrar::class)->register();
     app('router')->getRoutes()->refreshNameLookups();
@@ -345,15 +345,15 @@ test('mixed public and authenticated steps in same workflow', function () {
         ->entersAt(name: 'review.start', path: '/review')
         ->finishesAt('dashboard')
         ->step('view')
-            ->goTo(PublicStepComponent::class)
-            ->middleware(['web'])
-            ->order(10)
+        ->goTo(PublicStepComponent::class)
+        ->middleware(['web'])
+        ->order(10)
         ->step('write')
-            ->goTo(AuthRequiredStepComponent::class)
-            ->order(20)
+        ->goTo(AuthRequiredStepComponent::class)
+        ->order(20)
         ->step('submit')
-            ->goTo(VerifiedStepComponent::class)
-            ->order(30);
+        ->goTo(VerifiedStepComponent::class)
+        ->order(30);
 
     app(RouteRegistrar::class)->register();
     app('router')->getRoutes()->refreshNameLookups();
@@ -378,8 +378,8 @@ test('WorkflowStep attribute sets both workflow name and middleware', function (
         ->entersAt(name: 'checkout.start', path: '/checkout')
         ->finishesAt('dashboard')
         ->step('test')
-            ->goTo(WorkflowStepTestComponent::class)
-            ->order(10);
+        ->goTo(WorkflowStepTestComponent::class)
+        ->order(10);
 
     $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
     $workflow = $registrar->get('checkout');
@@ -394,8 +394,8 @@ test('WorkflowStep attribute with empty middleware returns null', function () {
         ->entersAt(name: 'review.start', path: '/review')
         ->finishesAt('dashboard')
         ->step('view')
-            ->goTo(WorkflowStepNoMiddlewareComponent::class)
-            ->order(10);
+        ->goTo(WorkflowStepNoMiddlewareComponent::class)
+        ->order(10);
 
     $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
     $workflow = $registrar->get('product-review');
@@ -414,8 +414,8 @@ test('WorkflowStep attribute is preferred over StepMiddleware', function () {
         ->entersAt(name: 'checkout.start', path: '/checkout')
         ->finishesAt('dashboard')
         ->step('test')
-            ->goTo(WorkflowStepTestComponent::class)
-            ->order(10);
+        ->goTo(WorkflowStepTestComponent::class)
+        ->order(10);
 
     $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
     $workflow = $registrar->get('checkout');
@@ -430,9 +430,9 @@ test('DSL middleware still overrides WorkflowStep attribute', function () {
         ->entersAt(name: 'checkout.start', path: '/checkout')
         ->finishesAt('dashboard')
         ->step('test')
-            ->goTo(WorkflowStepTestComponent::class)
-            ->middleware(['web', 'custom']) // DSL middleware
-            ->order(10);
+        ->goTo(WorkflowStepTestComponent::class)
+        ->middleware(['web', 'custom']) // DSL middleware
+        ->order(10);
 
     $registrar = app(\Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class);
     $workflow = $registrar->get('checkout');

@@ -2,6 +2,21 @@
 
 All notable changes to `livewire-workflows` will be documented in this file.
 
+## 0.6.0b - 2026-02-17
+
+### Added
+
+- **Livewire v4 Certification**: Formally verified compatibility with Livewire v4. All lifecycle
+  hooks used by `InteractsWithWorkflows` (`boot`, `mount`, `updated`, `dehydrate`) and the
+  `redirect()` navigation API (`navigate: true`) are confirmed unchanged in Livewire v4.
+- Added `tests/Feature/LivewireV4CompatibilityTest.php` with 7 explicit v4 compatibility tests
+  documenting each lifecycle integration point.
+
+### Changed
+
+- Updated `README.md` requirements to list Livewire 3.x or 4.x.
+- Updated `README.md` FAQ to reflect certified Livewire v4 compatibility.
+
 ## 0.5.3b - 2025-12-21
 
 ### What's Changed

@@ -2,6 +2,14 @@
 
 All notable changes to `livewire-workflows` will be documented in this file.
 
+## 0.5.5b - 2026-02-18
+
+### What's Changed
+
+* Add workflows:audit command and tests by @whoisthisstud in https://github.com/pixelworxio/livewire-workflows/pull/19
+
+**Full Changelog**: https://github.com/pixelworxio/livewire-workflows/compare/0.5.4.b...0.5.5b
+
 ## 0.5.4.b - 2026-02-18
 
 ### What's Changed

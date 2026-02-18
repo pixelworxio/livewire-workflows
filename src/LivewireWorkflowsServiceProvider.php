@@ -8,6 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use Pixelworxio\LivewireWorkflows\Commands\MakeWorkflowCommand;
 use Pixelworxio\LivewireWorkflows\Commands\MakeWorkflowGuardCommand;
 use Pixelworxio\LivewireWorkflows\Commands\MakeWorkflowStepCommand;
+use Pixelworxio\LivewireWorkflows\Commands\WorkflowsAuditCommand;
 use Pixelworxio\LivewireWorkflows\Commands\WorkflowsInstallCommand;
 use Pixelworxio\LivewireWorkflows\Commands\WorkflowsScanCommand;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
@@ -89,6 +90,7 @@ class LivewireWorkflowsServiceProvider extends ServiceProvider
                 MakeWorkflowStepCommand::class,
                 MakeWorkflowGuardCommand::class,
                 WorkflowsScanCommand::class,
+                WorkflowsAuditCommand::class,
             ]);
         }
     }

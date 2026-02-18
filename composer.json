@@ -7,9 +7,9 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Whoisthisstud",
+            "name": "@whoisthisstud",
             "email": "44807533+whoisthisstud@users.noreply.github.com",
-            "role": "Developer"
+            "role": "Author"
         }
     ],
     "require": {

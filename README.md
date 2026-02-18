@@ -7,7 +7,7 @@
 
 ---
 # Livewire Workflows (BETA)
-**Build powerful multi-step workflows in Laravel with zero boilerplate.** Define complex user journeys—onboarding, checkouts, surveys—using an expressive, route-like DSL. Get automatic route registration, guard-based navigation, state persistence, and full Livewire integration out of the box.
+**Build powerful multi-step workflows in Laravel with zero boilerplate.** Define complex user journeys—onboarding, checkouts, surveys—using an expressive, route-like DSL. Get automatic route registration, guard-based navigation, state persistence, and full Livewire 4.x integration out of the box. Livewire 3.x is also supported.
 
 ```php
 // Define a complete workflow in seconds
@@ -563,7 +563,7 @@ $this->allWorkflowState()
 | Route Auto-Registration | ✅ | ❌ | ❌ |
 | Guard-Based Navigation | ✅ | ❌ | Custom |
 | State Persistence | ✅ Built-in | ❌ | Custom |
-| Livewire 3 Native | ✅ | ⚠️ Limited | N/A |
+| Livewire 4 & 3 Native | ✅ | ⚠️ Limited | N/A |
 | History/Back Support | ✅ | ⚠️ Basic | Custom |
 | Progress Tracking | ✅ | ❌ | Custom |
 | Events | ✅ | ❌ | Custom |
@@ -574,9 +574,9 @@ $this->allWorkflowState()
 ## 💬 FAQ
 
 <details>
-<summary><strong>Can I use this with Livewire v3 and the v4 beta?</strong></summary>
+<summary><strong>Does this support Livewire v4?</strong></summary>
 
-The package is tested to work with Livewire v3. Livewire v4 beta compatibility is planned, but not yet tested.
+Yes. The package is built and certified for Livewire v4, with full backward compatibility for Livewire v3. All lifecycle hooks and the redirect/navigation API are identical across both versions.
 </details>
 
 <details>
@@ -615,7 +615,7 @@ The step page loads, but calling `continue()` will re-evaluate guards and redire
 
 - PHP 8.3+
 - Laravel 11.x or 12.x
-- Livewire 3.x
+- Livewire 4.x (3.x also supported)
 
 ---
 

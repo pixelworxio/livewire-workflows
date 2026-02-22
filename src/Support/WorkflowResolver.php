@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Pixelworxio\LivewireWorkflows\Support;
 
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\URL;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar;
+use Pixelworxio\LivewireWorkflows\StateRepositories\EloquentWorkflowStateRepository;
 
 /**
  * High-level workflow resolution and navigation helper.
@@ -90,6 +93,42 @@ class WorkflowResolver
         }
 
         return $workflow->getStepRouteName($previousStepKey);
+    }
+
+    /**
+     * Generate a signed resume URL pointing to the user's current step.
+     *
+     * Requires the Eloquent state repository. Throws a RuntimeException if
+     * the session or null repository is configured.
+     *
+     * @throws \RuntimeException if not using EloquentWorkflowStateRepository
+     * @throws \InvalidArgumentException if neither $user nor $userKey is provided
+     */
+    public function resumeUrlFor(
+        string $flow,
+        ?Authenticatable $user = null,
+        string|int|null $userKey = null,
+        int $expiresInMinutes = 1440,
+    ): string {
+        if (! $this->stateRepository instanceof EloquentWorkflowStateRepository) {
+            throw new \RuntimeException(
+                'Resume links require the Eloquent state repository. Set WORKFLOWS_REPOSITORY=eloquent in your .env file.'
+            );
+        }
+
+        $resolvedKey = $user?->getAuthIdentifier() ?? $userKey;
+
+        if ($resolvedKey === null) {
+            throw new \InvalidArgumentException(
+                'You must provide either a $user (Authenticatable) or a $userKey to generate a resume URL.'
+            );
+        }
+
+        return URL::temporarySignedRoute(
+            'workflows.resume',
+            now()->addMinutes($expiresInMinutes),
+            ['flow' => $flow, 'userKey' => (string) $resolvedKey],
+        );
     }
 
     /**

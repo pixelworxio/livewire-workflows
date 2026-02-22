@@ -6,7 +6,7 @@
 </p>
 
 ---
-# Livewire Workflows (BETA)
+# Livewire Workflows
 **Build powerful multi-step workflows in Laravel with zero boilerplate.** Define complex user journeys—onboarding, checkouts, surveys—using an expressive, route-like DSL. Get automatic route registration, guard-based navigation, state persistence, and full Livewire 4.x integration out of the box. Supports Laravel 11, 12, and 13. Livewire 3.x is also supported.
 
 ```php
@@ -51,14 +51,9 @@ View the testbench repo, https://github.com/pixelworxio/livewire-workflows-testb
 composer require pixelworxio/livewire-workflows
 ```
 
-### Quick Setup (Session-Based)
+### Setup
 ```bash
 php artisan workflows:install
-```
-
-### Production Setup (Database-Backed)
-```bash
-php artisan workflows:install --with-db
 php artisan migrate
 ```
 
@@ -340,9 +335,28 @@ class CheckoutShipping extends Component
 - Auto-persistence on dehydrate
 - Encryption support
 - Namespace grouping
-- Session or database storage
+- Database storage
 
 [Full state management guide →](STATE_MANAGEMENT.md)
+
+### Resume Links
+
+Generate signed URLs that drop users directly back into their current workflow step — ideal for abandoned onboarding or checkout emails.
+
+```php
+// In a notification, mailable, or controller:
+$url = workflow('onboarding')->resumeUrlFor(user: $user);
+$url = workflow('onboarding')->resumeUrlFor(user: $user, expiresInMinutes: 2880); // 48h
+
+// Guest / explicit key:
+$url = workflow('checkout')->resumeUrlFor(userKey: 'guest-abc123', expiresInMinutes: 60);
+```
+
+**Requirements:**
+- Must be using the Eloquent state repository (`WORKFLOWS_REPOSITORY=eloquent`)
+- `APP_KEY` must be set (used to sign the URL)
+
+The generated URL is a signed route pointing to the user's current incomplete step. If no step has been recorded yet, the user is redirected to the workflow entry route. URLs expire after 24 hours by default (configurable via `WORKFLOWS_RESUME_EXPIRES` env variable). Tampered or expired URLs return 403.
 
 ### Progress Tracking
 
@@ -380,6 +394,12 @@ Event::listen(WorkflowCompleted::class, function ($event) {
 ### CLI Tools
 
 ```bash
+# Install the package
+php artisan workflows:install
+
+# Migrate from session state to Eloquent (existing installs)
+php artisan workflows:upgrade
+
 # Generate a new workflow
 php artisan make:workflow checkout
 
@@ -394,6 +414,9 @@ php artisan make:workflow-step checkout payment \
 
 # Validate and document all workflows
 php artisan workflows:scan
+
+# Audit workflows for configuration issues
+php artisan workflows:audit
 ```
 
 ---

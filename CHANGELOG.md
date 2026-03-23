@@ -2,6 +2,22 @@
 
 All notable changes to `livewire-workflows` will be documented in this file.
 
+## 0.5.6b - 2026-03-23
+
+### Added
+
+- **Laravel 13 Support**: Added compatibility with Laravel 13.x (released March 17, 2026).
+  Updated `illuminate/contracts`, `illuminate/pipeline`, and `illuminate/support` constraints
+  to include `^13.0`. Updated `orchestra/testbench` to include `^11.0.0` for testing.
+  No source code changes required — all lifecycle hooks and APIs remain fully compatible.
+
+### Changed
+
+- Updated CI matrix to test against Laravel 13.* with Testbench 11.*
+- Updated README.md and CLAUDE.md to document Laravel 13.x support
+
+**Full Changelog**: https://github.com/pixelworxio/livewire-workflows/compare/0.5.5b...0.5.6b
+
 ## 0.5.5b - 2026-02-18
 
 ### What's Changed

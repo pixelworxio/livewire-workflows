@@ -25,7 +25,7 @@ This document provides AI assistants with comprehensive information about the Li
 
 - **Package Name**: `pixelworxio/livewire-workflows`
 - **Namespace**: `Pixelworxio\LivewireWorkflows`
-- **Requirements**: PHP 8.3+, Laravel 11.x/12.x, Livewire 3.x/4.x
+- **Requirements**: PHP 8.3+, Laravel 11.x/12.x/13.x, Livewire 3.x/4.x
 - **License**: MIT
 - **Test Framework**: Pest v3/v4
 - **Code Quality**: PHPStan (level 2), Laravel Pint

@@ -7,7 +7,7 @@
 
 ---
 # Livewire Workflows (BETA)
-**Build powerful multi-step workflows in Laravel with zero boilerplate.** Define complex user journeys—onboarding, checkouts, surveys—using an expressive, route-like DSL. Get automatic route registration, guard-based navigation, state persistence, and full Livewire 4.x integration out of the box. Livewire 3.x is also supported.
+**Build powerful multi-step workflows in Laravel with zero boilerplate.** Define complex user journeys—onboarding, checkouts, surveys—using an expressive, route-like DSL. Get automatic route registration, guard-based navigation, state persistence, and full Livewire 4.x integration out of the box. Supports Laravel 11, 12, and 13. Livewire 3.x is also supported.
 
 ```php
 // Define a complete workflow in seconds
@@ -614,7 +614,7 @@ The step page loads, but calling `continue()` will re-evaluate guards and redire
 ## 🛠️ Requirements
 
 - PHP 8.3+
-- Laravel 11.x or 12.x
+- Laravel 11.x, 12.x, or 13.x
 - Livewire 4.x (3.x also supported)
 
 ---

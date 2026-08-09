@@ -8,9 +8,10 @@ return [
     |
     | The repository used to persist workflow state.
     |
-    | Supported: "null", "eloquent"
+    | Supported: "null", "session", "eloquent"
     |
     | - null: No persistence (stateless)
+    | - session: Store in the browser session (deprecated)
     | - eloquent: Store in database (recommended; requires migration)
     |
     */

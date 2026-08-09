@@ -9,9 +9,9 @@ All notable changes to `livewire-workflows` will be documented in this file.
 - **Resume Links**: Generate signed URLs that drop users directly into their current workflow step
   - `workflow('flow')->resumeUrlFor(user: $user)` — for authenticated users
   - `workflow('flow')->resumeUrlFor(userKey: 'guest-key')` — for explicit guest keys
-  - Configurable expiry via `expiresInMinutes` parameter (default: 1440 = 24 hours)
-  - `WORKFLOWS_RESUME_EXPIRES` env variable for global default
+  - Configurable expiry via `expiresInMinutes` parameter or `WORKFLOWS_RESUME_EXPIRES` (default: 1440 = 24 hours)
   - New `WorkflowResumeController` handles signed URL validation and step redirect
+  - Resume redirects preserve stored dynamic route parameters
   - Requires Eloquent state repository; throws `\RuntimeException` if not configured
 
 - **`workflows:upgrade` command**: Guides existing installations from session to Eloquent state

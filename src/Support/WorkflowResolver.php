@@ -108,7 +108,7 @@ class WorkflowResolver
         string $flow,
         ?Authenticatable $user = null,
         string|int|null $userKey = null,
-        int $expiresInMinutes = 1440,
+        ?int $expiresInMinutes = null,
     ): string {
         if (! $this->stateRepository instanceof EloquentWorkflowStateRepository) {
             throw new \RuntimeException(
@@ -123,6 +123,8 @@ class WorkflowResolver
                 'You must provide either a $user (Authenticatable) or a $userKey to generate a resume URL.'
             );
         }
+
+        $expiresInMinutes ??= (int) config('livewire-workflows.resume.default_expires_minutes', 1440);
 
         return URL::temporarySignedRoute(
             'workflows.resume',

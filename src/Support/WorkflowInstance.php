@@ -64,7 +64,7 @@ class WorkflowInstance
     public function resumeUrlFor(
         ?Authenticatable $user = null,
         string|int|null $userKey = null,
-        int $expiresInMinutes = 1440,
+        ?int $expiresInMinutes = null,
     ): string {
         return $this->resolver->resumeUrlFor($this->flow, $user, $userKey, $expiresInMinutes);
     }

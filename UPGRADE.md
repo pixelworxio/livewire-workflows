@@ -70,6 +70,8 @@ $url = workflow('checkout')->resumeUrlFor(userKey: 'guest-abc123', expiresInMinu
 
 The signed URL expires after 24 hours by default. Expired or tampered URLs return a 403.
 
+> **Security:** A signed resume URL proves that the URL is valid. It does not identify the person who opens it. Apply authentication and authorization that match your workflow before you use a resume link for private data.
+
 **Configure the default expiry:**
 ```env
 WORKFLOWS_RESUME_EXPIRES=2880  # minutes (default: 1440 = 24h)
@@ -81,7 +83,7 @@ WORKFLOWS_RESUME_EXPIRES=2880  # minutes (default: 1440 = 24h)
 
 The `SessionWorkflowStateRepository` class is still present in the codebase but is no longer documented or recommended. It will be removed in a future version.
 
-If your use case genuinely requires session-only state (e.g., fully anonymous flows with no database), the `null` repository remains supported.
+If your use case genuinely requires short-lived session-only state, set `WORKFLOWS_REPOSITORY=session` explicitly. It remains supported for now, but it does not support resume links. Use `null` only when you do not need state persistence.
 
 ---
 

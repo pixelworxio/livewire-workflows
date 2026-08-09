@@ -358,6 +358,8 @@ $url = workflow('checkout')->resumeUrlFor(userKey: 'guest-abc123', expiresInMinu
 
 The generated URL is a signed route pointing to the user's current incomplete step. If no step has been recorded yet, the user is redirected to the workflow entry route. URLs expire after 24 hours by default (configurable via `WORKFLOWS_RESUME_EXPIRES` env variable). Tampered or expired URLs return 403.
 
+> **Security:** A signed resume URL proves that the URL is valid. It does not identify the person who opens it. Apply authentication and authorization that match your workflow before you use a resume link for private data.
+
 ### Progress Tracking
 
 ```php
@@ -498,7 +500,7 @@ php artisan vendor:publish --tag=livewire-workflows-config
 ```php
 return [
     // State persistence: 'null', 'session', or 'eloquent'
-    'repository' => env('WORKFLOWS_REPOSITORY', 'session'),
+    'repository' => env('WORKFLOWS_REPOSITORY', 'eloquent'),
     
     // Middleware applied to all workflow routes
     'middleware' => ['web', 'auth'],
@@ -510,7 +512,7 @@ return [
 | Repository | Use Case | Persistence |
 |------------|----------|-------------|
 | `null` | Stateless workflows | None |
-| `session` | Guest users, simple flows | Session lifetime |
+| `session` | Short-lived anonymous flows (deprecated) | Session lifetime |
 | `eloquent` | Authenticated users, production | Database |
 
 ---
@@ -534,8 +536,8 @@ Workflow::flow(string $name)
 ```php
 use InteractsWithWorkflows;
 
-$this->continue(string $flow): RedirectResponse
-$this->back(string $flow, string $currentKey): ?RedirectResponse
+$this->continue(string $flow): void
+$this->back(string $flow, string $currentKey): void
 $this->syncState(): void  // Manually persist state
 ```
 
@@ -546,8 +548,8 @@ Note: When using the `#[WorkflowStep]` attribute, the `$flow` and `$currentKey` 
 
 use InteractsWithWorkflows;
 
-$this->continue(): RedirectResponse
-$this->back(): ?RedirectResponse
+$this->continue(): void
+$this->back(): void
 ```
 
 ### Helper Functions

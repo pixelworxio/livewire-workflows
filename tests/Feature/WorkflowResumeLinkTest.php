@@ -2,10 +2,15 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Route;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use Pixelworxio\LivewireWorkflows\Facades\Workflow;
 use Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar;
+use Pixelworxio\LivewireWorkflows\StateRepositories\SessionWorkflowStateRepository;
+use Pixelworxio\LivewireWorkflows\Support\RouteRegistrar;
+use Pixelworxio\LivewireWorkflows\Support\WorkflowEngine;
+use Pixelworxio\LivewireWorkflows\Support\WorkflowInstance;
 use Pixelworxio\LivewireWorkflows\Support\WorkflowResolver;
 use Tests\Support\FailingGuard;
 use Tests\Support\TestStepOneComponent;
@@ -31,7 +36,7 @@ beforeEach(function () {
 
     Route::get('/dashboard', fn () => 'Dashboard')->name('dashboard');
 
-    app(Pixelworxio\LivewireWorkflows\Support\RouteRegistrar::class)->register();
+    app(RouteRegistrar::class)->register();
     app('router')->getRoutes()->refreshNameLookups();
 
     $this->resolver = app(WorkflowResolver::class);
@@ -39,7 +44,7 @@ beforeEach(function () {
 });
 
 test('generates a signed resume URL for an authenticated user', function () {
-    $user = new class implements \Illuminate\Contracts\Auth\Authenticatable
+    $user = new class implements Authenticatable
     {
         public function getAuthIdentifierName(): string
         {
@@ -103,6 +108,19 @@ test('generated URL has default 24 hour expiry', function () {
         ->toBeLessThanOrEqual(now()->addMinutes(1440)->timestamp);
 });
 
+test('generated URL uses the configured default expiry', function () {
+    config()->set('livewire-workflows.resume.default_expires_minutes', 60);
+
+    $url = workflow('onboarding')->resumeUrlFor(userKey: '1');
+
+    $query = parse_url($url, PHP_URL_QUERY);
+    parse_str($query, $params);
+
+    expect((int) $params['expires'])
+        ->toBeGreaterThan(now()->timestamp)
+        ->toBeLessThanOrEqual(now()->addMinutes(60)->timestamp);
+});
+
 test('generated URL respects custom expiry', function () {
     $url = workflow('onboarding')->resumeUrlFor(userKey: '1', expiresInMinutes: 60);
 
@@ -129,6 +147,28 @@ test('resume URL redirects to entry route when no step is recorded', function ()
     $response->assertRedirect(route('onboarding.start'));
 });
 
+test('resume URL preserves dynamic workflow route parameters', function () {
+    Workflow::flow('checkout')
+        ->entersAt(name: 'checkout.start', path: '/users/{user}/products/{product}')
+        ->finishesAt('dashboard')
+        ->step('shipping')
+        ->goTo(TestStepOneComponent::class)
+        ->unlessPasses(FailingGuard::class)
+        ->order(10);
+
+    app(RouteRegistrar::class)->register();
+    app('router')->getRoutes()->refreshNameLookups();
+
+    $parameters = ['user' => '123', 'product' => '456'];
+    $this->repo->setCurrentStep('checkout', '99', 'shipping');
+    $this->repo->setState('checkout', '99', '_route_parameters', $parameters);
+
+    $url = workflow('checkout')->resumeUrlFor(userKey: '99');
+    $response = $this->get($url);
+
+    $response->assertRedirect(route('checkout.shipping', $parameters));
+});
+
 test('resume URL returns 403 when signature is invalid', function () {
     $url = workflow('onboarding')->resumeUrlFor(userKey: '1');
 
@@ -152,12 +192,12 @@ test('throws RuntimeException when not using Eloquent repository', function () {
 
     // Rebind repository and resolver so new bindings take effect
     app()->singleton(WorkflowStateRepository::class, function ($app) {
-        return $app->make(Pixelworxio\LivewireWorkflows\StateRepositories\SessionWorkflowStateRepository::class);
+        return $app->make(SessionWorkflowStateRepository::class);
     });
     app()->singleton(WorkflowResolver::class, function ($app) {
         return new WorkflowResolver(
-            $app->make(Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar::class),
-            $app->make(Pixelworxio\LivewireWorkflows\Support\WorkflowEngine::class),
+            $app->make(WorkflowRegistrar::class),
+            $app->make(WorkflowEngine::class),
             $app->make(WorkflowStateRepository::class),
         );
     });
@@ -165,17 +205,17 @@ test('throws RuntimeException when not using Eloquent repository', function () {
     $resolver = app()->make(WorkflowResolver::class);
 
     expect(fn () => $resolver->resumeUrlFor('onboarding', null, '1'))
-        ->toThrow(\RuntimeException::class, 'Resume links require the Eloquent state repository');
+        ->toThrow(RuntimeException::class, 'Resume links require the Eloquent state repository');
 });
 
 test('throws InvalidArgumentException when neither user nor userKey is provided', function () {
     expect(fn () => workflow('onboarding')->resumeUrlFor())
-        ->toThrow(\InvalidArgumentException::class, 'You must provide either a $user');
+        ->toThrow(InvalidArgumentException::class, 'You must provide either a $user');
 });
 
 test('helper function returns WorkflowInstance with resumeUrlFor method', function () {
     $instance = workflow('onboarding');
 
-    expect($instance)->toBeInstanceOf(Pixelworxio\LivewireWorkflows\Support\WorkflowInstance::class);
+    expect($instance)->toBeInstanceOf(WorkflowInstance::class);
     expect(method_exists($instance, 'resumeUrlFor'))->toBeTrue();
 });

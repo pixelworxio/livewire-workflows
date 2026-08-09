@@ -33,11 +33,13 @@ class WorkflowResumeController extends Controller
     {
         $workflow = $this->registrar->get($flow);
         $currentStep = $this->stateRepository->getCurrentStep($flow, $userKey);
+        $routeParameters = $this->stateRepository->getState($flow, $userKey, '_route_parameters', []);
+        $routeParameters = is_array($routeParameters) ? $routeParameters : [];
 
         if ($currentStep && $workflow->getStep($currentStep)) {
-            return redirect()->route($workflow->getStepRouteName($currentStep));
+            return redirect()->route($workflow->getStepRouteName($currentStep), $routeParameters);
         }
 
-        return redirect()->route($workflow->entryRouteName);
+        return redirect()->route($workflow->entryRouteName, $routeParameters);
     }
 }

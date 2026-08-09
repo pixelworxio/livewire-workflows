@@ -25,9 +25,9 @@ This document provides AI assistants with comprehensive information about the Li
 
 - **Package Name**: `pixelworxio/livewire-workflows`
 - **Namespace**: `Pixelworxio\LivewireWorkflows`
-- **Requirements**: PHP 8.3+, Laravel 11.x/12.x, Livewire 3.x/4.x
+- **Requirements**: PHP 8.3+, Laravel 11.x/12.x/13.x, Livewire 3.x/4.x
 - **License**: MIT
-- **Test Framework**: Pest v3/v4
+- **Test Framework**: Pest v5
 - **Code Quality**: PHPStan (level 2), Laravel Pint
 
 ### Primary Features
@@ -38,7 +38,8 @@ This document provides AI assistants with comprehensive information about the Li
 4. **History tracking** for back navigation
 5. **Progress tracking** API
 6. **Event-driven extensibility**
-7. **Livewire 3 native integration**
+7. **Signed resume links** for Eloquent-backed workflows
+8. **Livewire 3 and 4 integration**
 
 ---
 
@@ -117,6 +118,8 @@ livewire-workflows/
 │   │   ├── MakeWorkflowGuardCommand.php
 │   │   ├── WorkflowsInstallCommand.php
 │   │   └── WorkflowsScanCommand.php
+│   │   ├── WorkflowsAuditCommand.php
+│   │   └── WorkflowsUpgradeCommand.php
 │   ├── Contracts/                      # Interfaces
 │   │   ├── GuardContract.php
 │   │   └── WorkflowStateRepository.php
@@ -131,6 +134,7 @@ livewire-workflows/
 │   │   └── Workflow.php
 │   ├── Http/Controllers/               # HTTP Controllers
 │   │   └── WorkflowEntryController.php
+│   │   └── WorkflowResumeController.php
 │   ├── Livewire/Concerns/             # Livewire Traits
 │   │   └── InteractsWithWorkflows.php
 │   ├── Registrar/                      # DSL Implementation
@@ -186,10 +190,11 @@ livewire-workflows/
 - Manages state clearing
 
 **Key Methods**:
-- `nextStepFor(WorkflowDefinition $flow, Request $request): ?StepDefinition`
-- `previousStepFor(WorkflowDefinition $flow, string $currentKey, Request $request): ?StepDefinition`
-- `progressFor(WorkflowDefinition $flow, Request $request): array`
-- `isComplete(WorkflowDefinition $flow, Request $request): bool`
+- `nextStep(WorkflowDefinition $workflow, Request $request): ?string`
+- `previousStep(WorkflowDefinition $workflow, string $currentKey, Request $request): ?string`
+- `advanceTo(WorkflowDefinition $workflow, string $toKey, Request $request): void`
+- `complete(WorkflowDefinition $workflow, Request $request): void`
+- `progress(WorkflowDefinition $workflow, Request $request): array`
 
 ### 2. Workflow Registrar (`src/Registrar/WorkflowRegistrar.php`)
 
@@ -234,9 +239,9 @@ livewire-workflows/
 **Purpose**: Immutable DTO for workflow configuration
 
 **Properties**:
-- `flowName` - Workflow identifier
-- `entryRouteName`, `entryRoutePath` - Entry route details
-- `finishRouteName` - Completion route
+- `flow` - Workflow identifier
+- `entryRouteName`, `entryPath` - Entry route details
+- `finishRoute` - Completion route
 - `historyMode` - History tracking mode
 - `steps` - Array of StepDefinitions
 
@@ -250,12 +255,12 @@ livewire-workflows/
 **Purpose**: Core trait for Livewire components
 
 **Lifecycle Hooks**:
-- `bootInteractsWithWorkflows()` - Read WorkflowName attribute (v1.2+) or auto-detect workflow name from route
+- `bootInteractsWithWorkflows()` - Read WorkflowName attribute or auto-detect workflow name from route
 - `mountInteractsWithWorkflows()` - Hydrate state from repository
-- `updatedInteractsWithWorkflows(string $propertyName, mixed $value)` - Proactively sync state when properties change (v1.1+)
+- `updatedInteractsWithWorkflows(string $propertyName, mixed $value)` - Proactively sync state when properties change
 - `dehydrateInteractsWithWorkflows()` - Sync state to repository as fallback
 
-**State Persistence Strategy** (v1.1+):
+**State Persistence Strategy**:
 The trait now uses a **dual-layer persistence** approach for maximum reliability:
 
 1. **Proactive Syncing** - Properties marked with `#[WorkflowState]` are immediately persisted when changed via Livewire's `updated()` hook
@@ -311,18 +316,20 @@ This approach addresses edge cases where:
 
 #### WorkflowStateRepository Contract
 **Methods**:
-- `getCurrentStep(string $flow, string|int $userKey): ?string`
-- `setCurrentStep(string $flow, string|int $userKey, ?string $stepKey): void`
-- `getHistory(string $flow, string|int $userKey): array`
-- `pushHistory(string $flow, string|int $userKey, string $stepKey): void`
-- `getMetadata(string $flow, string|int $userKey, string $key, mixed $default = null): mixed`
-- `setMetadata(string $flow, string|int $userKey, string $key, mixed $value): void`
-- `getState(string $flow, string|int $userKey, string $key): mixed`
-- `setState(string $flow, string|int $userKey, string $key, mixed $value): void`
-- `hasState(string $flow, string|int $userKey, string $key): bool`
-- `forgetState(string $flow, string|int $userKey, string $key): void`
-- `clearState(string $flow, string|int $userKey, ?string $namespace = null): void`
-- `getAllState(string $flow, string|int $userKey): array`
+- `getCurrentStep(string $flow, string|int|null $userKey): ?string`
+- `setCurrentStep(string $flow, string|int|null $userKey, string $stepKey): void`
+- `getHistory(string $flow, string|int|null $userKey): array`
+- `pushHistory(string $flow, string|int|null $userKey, string $stepKey): void`
+- `popHistory(string $flow, string|int|null $userKey): ?string`
+- `clear(string $flow, string|int|null $userKey): void`
+- `getMetadata(string $flow, string|int|null $userKey): array`
+- `setMetadata(string $flow, string|int|null $userKey, array $metadata): void`
+- `getState(string $flow, string|int|null $userKey, string $key): mixed`
+- `setState(string $flow, string|int|null $userKey, string $key, mixed $value): void`
+- `hasState(string $flow, string|int|null $userKey, string $key): bool`
+- `forgetState(string $flow, string|int|null $userKey, string $key): void`
+- `clearState(string $flow, string|int|null $userKey, ?string $namespace = null): void`
+- `getAllState(string $flow, string|int|null $userKey): array`
 
 #### SessionWorkflowStateRepository
 - Session-based storage
@@ -406,13 +413,11 @@ composer test
 
 ### Branch Strategy
 
-1. **Fork** the repository
-2. **Create feature branch**: `git checkout -b feature/amazing-feature`
-3. **Make changes** following coding standards
-4. **Write tests** for all changes
-5. **Run test suite**: `composer test`
-6. **Commit with clear messages**
-7. **Submit PR** to `main` branch
+1. Preserve unrelated working-tree changes.
+2. Make changes following coding standards.
+3. Write or update tests for all changes.
+4. Run the release checks.
+5. Do not stage, commit, push, tag, or publish unless the user explicitly approves that action.
 
 ### Pre-Commit Checklist
 
@@ -502,7 +507,7 @@ public function __construct(
 Use `readonly` for immutability when possible:
 ```php
 public function __construct(
-    public readonly string $flowName,
+    public readonly string $flow,
     public readonly string $entryRouteName,
 ) {}
 ```
@@ -517,7 +522,7 @@ Use named arguments for clarity (especially in DSL):
 Validate in `__construct()` or `build()`:
 ```php
 public function __construct(
-    public readonly string $flowName,
+    public readonly string $flow,
     public readonly string $componentClass,
 ) {
     if (! class_exists($componentClass)) {
@@ -531,7 +536,7 @@ public function __construct(
 ### Naming Conventions
 
 - **Classes**: PascalCase (`WorkflowEngine`)
-- **Methods**: camelCase (`nextStepFor`)
+- **Methods**: camelCase (`nextStep`)
 - **Variables**: camelCase (`$currentStep`)
 - **Constants**: UPPER_SNAKE_CASE (`HISTORY_MODE_STACK`)
 - **Route Names**: snake.case with dots (`onboarding.verify-email`)
@@ -583,7 +588,7 @@ Workflow::flow('order-review')
 
 ## Testing Conventions
 
-### Test Framework: Pest v3/v4
+### Test Framework: Pest v5
 
 ### Test Structure
 
@@ -771,7 +776,7 @@ Workflow::flow('checkout')
 
 ### 6. State Management with Attributes
 
-**Setting Workflow Name** (v1.2+):
+**Setting Workflow Name**:
 ```php
 use Pixelworxio\LivewireWorkflows\Attributes\WorkflowName;
 
@@ -786,7 +791,7 @@ class ProfileStep extends Component
 
 The `#[WorkflowName]` attribute eliminates the need to manually set `$workflowName` property. The trait automatically reads the attribute during boot. If no attribute is present, it falls back to auto-detection from the route name.
 
-**Automatic Persistence** (Enhanced in v1.1):
+**Automatic Persistence**:
 ```php
 use Pixelworxio\LivewireWorkflows\Attributes\WorkflowName;
 use Pixelworxio\LivewireWorkflows\Attributes\WorkflowState;
@@ -809,11 +814,11 @@ class ProfileStep extends Component
 
 Properties are:
 - **Hydrated** on mount (from repository)
-- **Synced immediately** when changed via wire:model or `$this->set()` (v1.1+)
+- **Synced immediately** when changed via wire:model or `$this->set()`
 - **Synced on dehydrate** as fallback to catch all changes
 - **Scoped** to workflow and user
 
-**Dual-Layer Persistence** (v1.1):
+**Dual-Layer Persistence**:
 - **Layer 1**: Proactive syncing via `updatedInteractsWithWorkflows()` - catches wire:model and explicit property updates
 - **Layer 2**: Dehydration fallback via `dehydrateInteractsWithWorkflows()` - catches direct assignments in methods
 
@@ -841,21 +846,18 @@ Builders are stored as "pending" and finalized lazily:
 
 ### Adding a New Feature
 
-1. **Create feature branch**: `git checkout -b feature/my-feature`
-2. **Write failing tests first** (TDD approach)
-3. **Implement feature** following coding standards
-4. **Ensure tests pass**: `composer test`
-5. **Run static analysis**: `./vendor/bin/phpstan analyse`
-6. **Format code**: `./vendor/bin/pint`
-7. **Update documentation** (README, this file, etc.)
-8. **Update CHANGELOG.md**
-9. **Commit and push**
-10. **Submit PR with description**
+1. Write failing tests first when practical.
+2. Implement the feature following coding standards.
+3. Ensure tests pass: `composer test`.
+4. Run static analysis: `./vendor/bin/phpstan analyse`.
+5. Format code: `./vendor/bin/pint`.
+6. Update relevant documentation and `CHANGELOG.md`.
+7. Leave the work uncommitted for review unless the user explicitly asks for Git actions.
 
 ### Adding a New Command
 
 1. Create command class in `src/Commands/`
-2. Register in `LivewireWorkflowsServiceProvider::bootCommands()`
+2. Register in `LivewireWorkflowsServiceProvider::registerCommands()`
 3. Add stub template in `stubs/` if needed
 4. Write tests in `tests/Feature/Commands/`
 5. Update README with command documentation
@@ -958,7 +960,7 @@ dd($this->allWorkflowState());
 **Solution**:
 - Verify at least one guard returns `false` (step should be shown)
 - Check all guards are returning `true` (all steps complete)
-- Ensure `finishRouteName` exists in your routes
+- Ensure `finishRoute` names a registered route
 - Debug with: `dd(workflow('name')->nextRouteNameFor(request()))`
 
 ### Back Navigation Not Working
@@ -1067,7 +1069,8 @@ $progress = workflow('onboarding')->progressFor($request);
 
 ```bash
 # Installation
-php artisan workflows:install [--with-db]
+php artisan workflows:install
+php artisan workflows:upgrade
 
 # Generation
 php artisan make:workflow {name}
@@ -1087,10 +1090,14 @@ php artisan workflows:scan
 ```php
 return [
     // State persistence: 'null', 'session', or 'eloquent'
-    'repository' => env('WORKFLOWS_REPOSITORY', 'session'),
+    'repository' => env('WORKFLOWS_REPOSITORY', 'eloquent'),
 
     // Middleware applied to all workflow routes
     'middleware' => ['web'],
+
+    'resume' => [
+        'default_expires_minutes' => env('WORKFLOWS_RESUME_EXPIRES', 1440),
+    ],
 ];
 ```
 
@@ -1099,7 +1106,7 @@ return [
 | Repository | Use Case | Persistence |
 |------------|----------|-------------|
 | `null` | Stateless workflows | None |
-| `session` | Guest users, simple flows | Session lifetime |
+| `session` | Short-lived anonymous flows (deprecated) | Session lifetime |
 | `eloquent` | Authenticated users, production | Database |
 
 ---

@@ -2,22 +2,38 @@
 
 All notable changes to `livewire-workflows` will be documented in this file.
 
+## 1.0.0 - 2026-08-14
+
+### What's Changed
+
+* Bump ramsey/composer-install from 3 to 4 by @dependabot[bot] in https://github.com/pixelworxio/livewire-workflows/pull/20
+* feat: add Laravel 13.x support by @whoisthisstud in https://github.com/pixelworxio/livewire-workflows/pull/21
+* Bump dependabot/fetch-metadata from 2.5.0 to 3.0.0 by @dependabot[bot] in https://github.com/pixelworxio/livewire-workflows/pull/22
+* Bump dependabot/fetch-metadata from 3.0.0 to 3.1.0 by @dependabot[bot] in https://github.com/pixelworxio/livewire-workflows/pull/23
+* build(deps): bump actions/checkout from 6 to 7 by @dependabot[bot] in https://github.com/pixelworxio/livewire-workflows/pull/24
+* Feat/resumable workflows by @whoisthisstud in https://github.com/pixelworxio/livewire-workflows/pull/25
+
+**Full Changelog**: https://github.com/pixelworxio/livewire-workflows/compare/0.5.5b...1.0.0
+
 ## [Unreleased]
 
 ### Added
 
 - **Resume Links**: Generate signed URLs that drop users directly into their current workflow step
+  
   - `workflow('flow')->resumeUrlFor(user: $user)` — for authenticated users
   - `workflow('flow')->resumeUrlFor(userKey: 'guest-key')` — for explicit guest keys
   - Configurable expiry via `expiresInMinutes` parameter or `WORKFLOWS_RESUME_EXPIRES` (default: 1440 = 24 hours)
   - New `WorkflowResumeController` handles signed URL validation and step redirect
   - Resume redirects preserve stored dynamic route parameters
   - Requires Eloquent state repository; throws `\RuntimeException` if not configured
-
+  
 - **`workflows:upgrade` command**: Guides existing installations from session to Eloquent state
+  
   - Detects current repository configuration
   - Confirmation prompt before making any changes (safe to cancel)
   - Publishes migration, runs `migrate`, updates published config on confirm
+  
 
 ### Changed
 

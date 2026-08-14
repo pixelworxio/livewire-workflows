@@ -25,6 +25,11 @@ afterEach(function () {
     if (File::exists($this->configPath)) {
         File::delete($this->configPath);
     }
+
+    $migrations = glob(database_path('migrations/*create_workflow_states_table.php'));
+    foreach ($migrations as $file) {
+        File::delete($file);
+    }
 });
 
 test('command runs successfully', function () {
@@ -65,7 +70,7 @@ test('outputs next steps after installation', function () {
         ->expectsOutputToContain('Define workflows in routes/workflows.php');
 });
 
-test('with-db option publishes migration', function () {
+test('publishes migration during installation', function () {
     // Clean up any migrations that might exist
     $migrationPattern = database_path('migrations/*create_workflow_states_table.php');
     $existing = glob($migrationPattern);
@@ -73,48 +78,29 @@ test('with-db option publishes migration', function () {
         File::delete($file);
     }
 
-    $this->artisan(WorkflowsInstallCommand::class, ['--with-db' => true])
+    $this->artisan(WorkflowsInstallCommand::class)
         ->assertSuccessful();
 
     $migrations = glob(database_path('migrations/*create_workflow_states_table.php'));
 
     expect($migrations)->not->toBeEmpty();
-
-    // Cleanup
-    foreach ($migrations as $file) {
-        File::delete($file);
-    }
 });
 
-test('with-db option outputs migration run instruction', function () {
-    $this->artisan(WorkflowsInstallCommand::class, ['--with-db' => true])
+test('outputs migrate instruction during installation', function () {
+    $this->artisan(WorkflowsInstallCommand::class)
         ->assertSuccessful()
         ->expectsOutputToContain('php artisan migrate');
-
-    // Cleanup migrations
-    $migrations = glob(database_path('migrations/*create_workflow_states_table.php'));
-    foreach ($migrations as $file) {
-        File::delete($file);
-    }
 });
 
-test('with-db option updates config to use eloquent repository', function () {
-    // First run without --with-db to publish config with session
+test('skips migration when one already exists', function () {
+    // Create a fake existing migration
+    $existingMigration = database_path('migrations/2020_01_01_000000_create_workflow_states_table.php');
+    File::put($existingMigration, '<?php // existing migration');
+
     $this->artisan(WorkflowsInstallCommand::class)
-        ->assertSuccessful();
+        ->assertSuccessful()
+        ->expectsOutputToContain('Migration for workflow_states table already exists, skipping.');
 
-    // Now run with --with-db
-    $this->artisan(WorkflowsInstallCommand::class, ['--with-db' => true])
-        ->assertSuccessful();
-
-    if (File::exists($this->configPath)) {
-        $config = File::get($this->configPath);
-        expect($config)->toContain("env('WORKFLOWS_REPOSITORY', 'eloquent')");
-    }
-
-    // Cleanup migrations
     $migrations = glob(database_path('migrations/*create_workflow_states_table.php'));
-    foreach ($migrations as $file) {
-        File::delete($file);
-    }
+    expect(count($migrations))->toBe(1);
 });

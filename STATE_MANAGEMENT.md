@@ -197,21 +197,13 @@ $repository->clearState('onboarding', $userKey);
 
 State persistence depends on your configured repository:
 
-### Session (Default)
-```php
-'repository' => 'session',
-```
-- Stored in Laravel session
-- Perfect for guests
-- Cleared when session expires
-
-### Eloquent
+### Eloquent (Default)
 ```php
 'repository' => 'eloquent',
 ```
 - Stored in `workflow_states` table
-- Survives sessions
-- Best for authenticated workflows
+- Survives sessions and deploys
+- Required for resume links
 - Supports both guest keys and user IDs
 
 ### Null
@@ -366,8 +358,8 @@ Event::listen(WorkflowStateClearing::class, function ($event) {
 
 **State not persisting?**
 - Ensure `workflowName` is set in your component
-- Check your repository configuration
-- Verify the session is available for session-based storage
+- Verify `WORKFLOWS_REPOSITORY=eloquent` is set in your `.env`
+- Confirm the `workflow_states` table exists: run `php artisan migrate`
 
 **State not hydrating?**
 - Confirm properties have the `#[WorkflowState]` attribute

@@ -6,7 +6,7 @@
 </p>
 
 ---
-# Livewire Workflows (BETA)
+# Livewire Workflows
 **Build powerful multi-step workflows in Laravel with zero boilerplate.** Define complex user journeys—onboarding, checkouts, surveys—using an expressive, route-like DSL. Get automatic route registration, guard-based navigation, state persistence, and full Livewire 4.x integration out of the box. Supports Laravel 11, 12, and 13. Livewire 3.x is also supported.
 
 ```php
@@ -51,14 +51,9 @@ View the testbench repo, https://github.com/pixelworxio/livewire-workflows-testb
 composer require pixelworxio/livewire-workflows
 ```
 
-### Quick Setup (Session-Based)
+### Setup
 ```bash
 php artisan workflows:install
-```
-
-### Production Setup (Database-Backed)
-```bash
-php artisan workflows:install --with-db
 php artisan migrate
 ```
 
@@ -340,9 +335,30 @@ class CheckoutShipping extends Component
 - Auto-persistence on dehydrate
 - Encryption support
 - Namespace grouping
-- Session or database storage
+- Database storage
 
 [Full state management guide →](STATE_MANAGEMENT.md)
+
+### Resume Links
+
+Generate signed URLs that drop users directly back into their current workflow step — ideal for abandoned onboarding or checkout emails.
+
+```php
+// In a notification, mailable, or controller:
+$url = workflow('onboarding')->resumeUrlFor(user: $user);
+$url = workflow('onboarding')->resumeUrlFor(user: $user, expiresInMinutes: 2880); // 48h
+
+// Guest / explicit key:
+$url = workflow('checkout')->resumeUrlFor(userKey: 'guest-abc123', expiresInMinutes: 60);
+```
+
+**Requirements:**
+- Must be using the Eloquent state repository (`WORKFLOWS_REPOSITORY=eloquent`)
+- `APP_KEY` must be set (used to sign the URL)
+
+The generated URL is a signed route pointing to the user's current incomplete step. If no step has been recorded yet, the user is redirected to the workflow entry route. URLs expire after 24 hours by default (configurable via `WORKFLOWS_RESUME_EXPIRES` env variable). Tampered or expired URLs return 403.
+
+> **Security:** A signed resume URL proves that the URL is valid. It does not identify the person who opens it. Apply authentication and authorization that match your workflow before you use a resume link for private data.
 
 ### Progress Tracking
 
@@ -380,6 +396,12 @@ Event::listen(WorkflowCompleted::class, function ($event) {
 ### CLI Tools
 
 ```bash
+# Install the package
+php artisan workflows:install
+
+# Migrate from session state to Eloquent (existing installs)
+php artisan workflows:upgrade
+
 # Generate a new workflow
 php artisan make:workflow checkout
 
@@ -394,6 +416,9 @@ php artisan make:workflow-step checkout payment \
 
 # Validate and document all workflows
 php artisan workflows:scan
+
+# Audit workflows for configuration issues
+php artisan workflows:audit
 ```
 
 ---
@@ -475,7 +500,7 @@ php artisan vendor:publish --tag=livewire-workflows-config
 ```php
 return [
     // State persistence: 'null', 'session', or 'eloquent'
-    'repository' => env('WORKFLOWS_REPOSITORY', 'session'),
+    'repository' => env('WORKFLOWS_REPOSITORY', 'eloquent'),
     
     // Middleware applied to all workflow routes
     'middleware' => ['web', 'auth'],
@@ -487,7 +512,7 @@ return [
 | Repository | Use Case | Persistence |
 |------------|----------|-------------|
 | `null` | Stateless workflows | None |
-| `session` | Guest users, simple flows | Session lifetime |
+| `session` | Short-lived anonymous flows (deprecated) | Session lifetime |
 | `eloquent` | Authenticated users, production | Database |
 
 ---
@@ -511,8 +536,8 @@ Workflow::flow(string $name)
 ```php
 use InteractsWithWorkflows;
 
-$this->continue(string $flow): RedirectResponse
-$this->back(string $flow, string $currentKey): ?RedirectResponse
+$this->continue(string $flow): void
+$this->back(string $flow, string $currentKey): void
 $this->syncState(): void  // Manually persist state
 ```
 
@@ -523,8 +548,8 @@ Note: When using the `#[WorkflowStep]` attribute, the `$flow` and `$currentKey` 
 
 use InteractsWithWorkflows;
 
-$this->continue(): RedirectResponse
-$this->back(): ?RedirectResponse
+$this->continue(): void
+$this->back(): void
 ```
 
 ### Helper Functions

@@ -11,6 +11,7 @@ use Pixelworxio\LivewireWorkflows\Commands\MakeWorkflowStepCommand;
 use Pixelworxio\LivewireWorkflows\Commands\WorkflowsAuditCommand;
 use Pixelworxio\LivewireWorkflows\Commands\WorkflowsInstallCommand;
 use Pixelworxio\LivewireWorkflows\Commands\WorkflowsScanCommand;
+use Pixelworxio\LivewireWorkflows\Commands\WorkflowsUpgradeCommand;
 use Pixelworxio\LivewireWorkflows\Contracts\WorkflowStateRepository;
 use Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar;
 use Pixelworxio\LivewireWorkflows\StateRepositories\EloquentWorkflowStateRepository;
@@ -86,6 +87,7 @@ class LivewireWorkflowsServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 WorkflowsInstallCommand::class,
+                WorkflowsUpgradeCommand::class,
                 MakeWorkflowCommand::class,
                 MakeWorkflowStepCommand::class,
                 MakeWorkflowGuardCommand::class,

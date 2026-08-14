@@ -6,6 +6,7 @@ namespace Pixelworxio\LivewireWorkflows\Support;
 
 use Illuminate\Support\Facades\Route;
 use Pixelworxio\LivewireWorkflows\Http\Controllers\WorkflowEntryController;
+use Pixelworxio\LivewireWorkflows\Http\Controllers\WorkflowResumeController;
 use Pixelworxio\LivewireWorkflows\Registrar\WorkflowRegistrar;
 
 /**
@@ -24,6 +25,11 @@ class RouteRegistrar
     {
         $globalMiddleware = $middleware ?? config('livewire-workflows.middleware', ['web']);
         $precedenceMode = config('livewire-workflows.middleware_precedence', 'override');
+
+        // Register the global resume route (shared across all workflows)
+        Route::middleware(['web', 'signed'])
+            ->get('/workflow/resume/{flow}/{userKey}', WorkflowResumeController::class)
+            ->name('workflows.resume');
 
         foreach ($this->workflowRegistrar->all() as $workflow) {
             // Resolve entry route middleware: workflow > global

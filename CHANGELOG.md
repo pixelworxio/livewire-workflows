@@ -2,6 +2,39 @@
 
 All notable changes to `livewire-workflows` will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- **Resume Links**: Generate signed URLs that drop users directly into their current workflow step
+  - `workflow('flow')->resumeUrlFor(user: $user)` — for authenticated users
+  - `workflow('flow')->resumeUrlFor(userKey: 'guest-key')` — for explicit guest keys
+  - Configurable expiry via `expiresInMinutes` parameter or `WORKFLOWS_RESUME_EXPIRES` (default: 1440 = 24 hours)
+  - New `WorkflowResumeController` handles signed URL validation and step redirect
+  - Resume redirects preserve stored dynamic route parameters
+  - Requires Eloquent state repository; throws `\RuntimeException` if not configured
+
+- **`workflows:upgrade` command**: Guides existing installations from session to Eloquent state
+  - Detects current repository configuration
+  - Confirmation prompt before making any changes (safe to cancel)
+  - Publishes migration, runs `migrate`, updates published config on confirm
+
+### Changed
+
+- **Eloquent is now the default repository**: `WORKFLOWS_REPOSITORY` defaults to `eloquent` instead of `session`
+- **`workflows:install` always sets up the database**: The `--with-db` flag has been removed; migration is always published and `php artisan migrate` is prompted in next steps
+
+### Deprecated
+
+- **Session state repository**: `SessionWorkflowStateRepository` is no longer documented or recommended. It will be removed in a future release. Existing code using it will continue to work.
+
+### Breaking Changes
+
+- Default `WORKFLOWS_REPOSITORY` changed from `session` to `eloquent`. Run `php artisan workflows:upgrade` to migrate.
+- `workflows:install --with-db` flag removed. Database setup is now always included.
+
+See [UPGRADE.md](UPGRADE.md) for full migration instructions.
+
 ## 0.5.6b - 2026-03-23
 
 ### Added

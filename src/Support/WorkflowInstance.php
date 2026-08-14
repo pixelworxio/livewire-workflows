@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pixelworxio\LivewireWorkflows\Support;
 
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -50,5 +51,21 @@ class WorkflowInstance
     public function progressFor(Request $request): array
     {
         return $this->resolver->progressFor($this->flow, $request);
+    }
+
+    /**
+     * Generate a signed resume URL pointing to the user's current step.
+     *
+     * Requires the Eloquent state repository.
+     *
+     * @throws \RuntimeException if not using EloquentWorkflowStateRepository
+     * @throws \InvalidArgumentException if neither $user nor $userKey is provided
+     */
+    public function resumeUrlFor(
+        ?Authenticatable $user = null,
+        string|int|null $userKey = null,
+        ?int $expiresInMinutes = null,
+    ): string {
+        return $this->resolver->resumeUrlFor($this->flow, $user, $userKey, $expiresInMinutes);
     }
 }
